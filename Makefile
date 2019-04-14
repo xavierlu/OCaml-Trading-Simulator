@@ -1,4 +1,4 @@
-MODULES=scraper authors 
+MODULES=scraper authors analysis trade
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
