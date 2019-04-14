@@ -4,7 +4,10 @@
 type stock = {
   ticker : string;
   open_prices : float list;
+  high_prices: float list;
+  low_prices: float list;
   close_prices : float list;
+  volumes: int list;
 }
 
 (** [get_data path] crawls through the files in directory [path] 

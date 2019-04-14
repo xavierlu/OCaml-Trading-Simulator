@@ -3,7 +3,10 @@ open Unix
 type stock = {
   ticker : string;
   open_prices : float list;
+  high_prices: float list;
+  low_prices: float list;
   close_prices : float list;
+  volumes: int list;
 }
 
 (** [file_crawler file filename] returns a stock type that contains the 
@@ -11,18 +14,25 @@ type stock = {
     [filename] exists to make parsing the ticker easier *)
 let file_crawler file filename = 
   let separator = ',' in
-  let rec crawler file (op: float list) (cp: float list) = 
+  let rec crawler file (op: float list) (high: float list) 
+            (low: float list) (cp: float list) (vol: int list)= 
     try
       let next_line = input_line file in
       let separated = String.split_on_char separator next_line in
       crawler file (float_of_string (List.nth separated 2)::op) 
-        (float_of_string (List.nth separated 5)::cp)
+        (float_of_string (List.nth separated 3)::high) 
+        (float_of_string (List.nth separated 4)::low) 
+        (float_of_string (List.nth separated 5)::cp) 
+        (int_of_string (List.nth separated 6)::vol)
     with _ ->
       let t_length = (String.index filename '.') - 6 in
       let t = String.uppercase_ascii (String.sub filename 6 t_length) 
-      in {ticker = t; open_prices = List.rev op; close_prices = List.rev cp}
+      in 
+        { ticker = t; open_prices = List.rev op; 
+          high_prices = List.rev high; low_prices = List.rev low; 
+          close_prices = List.rev cp; volumes = List.rev vol }
   in
-  crawler file [] []
+  crawler file [] [] [] [] []
 
 (** [ticker_cmp s1 s2] compares stocks [s1] and [s2] accoriding to the 
     alphabetical order of their tickers *)

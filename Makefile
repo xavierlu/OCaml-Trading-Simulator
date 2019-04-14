@@ -1,9 +1,9 @@
-MODULES=scraper authors analysis trade
+MODULES=scraper authors analysis trade ui
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
 TEST=test.byte
-TRADE=trade.byte
+UI=ui.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 PKGS=unix,oUnit,str,qcheck
 
@@ -16,8 +16,8 @@ build:
 test:
 	$(OCAMLBUILD) -tag debug $(TEST) && ./$(TEST)
 
-trade:
-	$(OCAMLBUILD) $(TRADE) && ./$(TRADE)
+ui:
+	$(OCAMLBUILD) $(UI) && ./$(UI)
 
 clean:
 	ocamlbuild -clean
