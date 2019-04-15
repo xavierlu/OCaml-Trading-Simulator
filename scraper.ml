@@ -6,7 +6,7 @@ type stock = {
   high_prices: float list;
   low_prices: float list;
   close_prices : float list;
-  volumes: int list;
+  volumes: float list;
 }
 
 (** [file_crawler file filename] returns a stock type that contains the 
@@ -15,7 +15,7 @@ type stock = {
 let file_crawler file filename = 
   let separator = ',' in
   let rec crawler file (op: float list) (high: float list) 
-            (low: float list) (cp: float list) (vol: int list)= 
+            (low: float list) (cp: float list) (vol: float list)= 
     try
       let next_line = input_line file in
       let separated = String.split_on_char separator next_line in
@@ -23,7 +23,7 @@ let file_crawler file filename =
         (float_of_string (List.nth separated 3)::high) 
         (float_of_string (List.nth separated 4)::low) 
         (float_of_string (List.nth separated 5)::cp) 
-        (int_of_string (List.nth separated 6)::vol)
+        (float_of_string (List.nth separated 6)::vol)
     with _ ->
       let t_length = (String.index filename '.') - 6 in
       let t = String.uppercase_ascii (String.sub filename 6 t_length) 

@@ -1,11 +1,9 @@
 
-#load "str.cma";;
-
 open Str
 open Scraper 
 
 (* need to pass a path, perhaps from ui or trade engine *)
-let path = "blahblahblah" 
+let path = "quantquote_small" 
 
 type phrase = string list 
 

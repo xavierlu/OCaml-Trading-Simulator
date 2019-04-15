@@ -7,7 +7,7 @@ type stock = {
   high_prices: float list;
   low_prices: float list;
   close_prices : float list;
-  volumes: int list;
+  volumes: float list;
 }
 
 (** [get_data path] crawls through the files in directory [path] 
