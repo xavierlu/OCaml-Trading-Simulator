@@ -3,7 +3,7 @@ open Str
 open Scraper 
 
 (* need to pass a path, perhaps from ui or trade engine *)
-let path = "quantquote_small" 
+let path = "quantquote_daily_sp500_83986/daily"
 
 type phrase = string list 
 
@@ -49,7 +49,7 @@ let isNum str =
 
 (** does some regex to check if valid trade *)
 let isValidTrade lst = 
-   isTicker (List.nth lst 1) && isNum (List.nth lst 2)
+   isTicker (String.uppercase_ascii (List.nth lst 1)) && isNum (List.nth lst 2)
 
 
 let parse str = 
