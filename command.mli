@@ -5,6 +5,9 @@ type command =
     | Sell of phrase
     | Quit 
     | Volatility of phrase
+    | SMA of phrase 
+    | Skew of phrase 
+    | Analysis of phrase
     | Next of phrase
 
 (** Raised when an empty command is parsed. *)
