@@ -1,7 +1,41 @@
 open Scraper
 
-let main () =
-  failwith "oof"
+type state = {
+  balance: float;
+  portfolio: (string * int) list;
+  value: float; 
+  day : int
+}
 
-(* Execute the game engine. *)
-let () = main ()
+let get_ticker stock ticker = 
+  List.find (fun item -> item.ticker = ticker) stock
+
+let buy (state:state) stock ticker amt = 
+  let ticker_obj = get_ticker stock ticker in
+  let price = List.nth ticker_obj.close_prices state.day in
+  if state.balance >= (price *. float_of_int amt) then
+    {
+      balance = state.balance -. (price *. float_of_int amt);
+      portfolio = if List.mem_assoc ticker state.portfolio 
+        then List.map (fun item -> if fst item = ticker then (fst item, snd item + amt) else item) state.portfolio
+        else (ticker, amt) :: state.portfolio;
+      value = state.value +. (price *. float_of_int amt); 
+      day = state.day
+    }
+  else 
+    failwith "ur broke fam"
+
+
+let sell state stock ticker amt = 
+  let ticker_obj = get_ticker stock ticker in
+  let price = List.nth ticker_obj.close_prices state.day in
+  if List.mem_assoc ticker state.portfolio && List.assoc ticker state.portfolio >= amt then
+    {
+      balance = state.balance +. (price *. float_of_int amt);
+      portfolio = List.map (fun item -> if fst item = ticker then (fst item, snd item - amt) else item) state.portfolio;
+      value = state.value -. (price *. float_of_int amt); 
+      day = state.day
+    }
+  else 
+    failwith "fam why u tryna sell more than what u have"
+
