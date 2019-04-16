@@ -1,11 +1,13 @@
 type phrase = string list 
 
 type command = 
-    | Buy of phrase
-    | Sell of phrase
-    | Quit 
-    | Volatility of phrase
-    | Next of phrase
+  | Buy of phrase
+  | Sell of phrase
+  | Quit 
+  | Help
+  | View
+  | Volatility of phrase
+  | Next of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -14,5 +16,5 @@ exception Empty
 exception Malformed
 
 (** [parse string] parses the inputted [string] and returns the
-  corresponding command*)
+    corresponding command*)
 val parse: string -> command

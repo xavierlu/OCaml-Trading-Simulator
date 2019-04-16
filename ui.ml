@@ -1,12 +1,6 @@
 open Scraper
 open Command
-
-type state = {
-  balance: float;
-  portfolio: (string * int) list;
-  value: float; 
-  day : int
-}
+open Trade
 
 type stock_array = {
   ticker : string;
@@ -18,8 +12,10 @@ type stock_array = {
   start_date: string
 }
 
+let (current_state:Trade.state) = {balance = 1000.; portfolio = []; value = 0.; day = 0}
+
 (* turn all lists in stock type to arrays *)
-let stocks_array stocks = List.map 
+let list_to_array stocks = List.map 
     (fun ({ticker = t;
            open_prices = op;
            high_prices = high;
@@ -34,17 +30,31 @@ let stocks_array stocks = List.map
           close_prices = Array.of_list close;
           volumes = Array.of_list vol; start_date = date}) stocks 
 
-let rec parse_next stocks =  
+let string_of_state state = 
+  "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
+  List.fold_left (fun x y -> x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  ") "" state.portfolio 
+  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ string_of_int state.day ^ "\n"
+
+let rec parse_next state stocks =  
   ANSITerminal.(print_string [red] "Please enter a command, or type help for a list of commands");
   ANSITerminal.(print_string [] "\n> ");
   let input = read_line () in
   try 
     match parse (input) with 
-    | Buy phrase -> let _ = Trade.buy 14 4 in parse_next stocks
-    | Sell phrase -> failwith "sdklfjsd"
+    | Buy phrase -> let next_state = buy state stocks (List.hd phrase) 
+                        (int_of_string (List.nth phrase 1)) in 
+      ANSITerminal.(print_string [green] (string_of_state next_state)); 
+      parse_next next_state stocks
+    | Sell phrase -> let next_state = sell state stocks (List.hd phrase) 
+                         (int_of_string (List.nth phrase 1)) in 
+      ANSITerminal.(print_string [green] (string_of_state next_state)); 
+      parse_next next_state stocks
     | Quit -> ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
+    | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say
+      \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks
+    | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks
     | Volatility phrase -> failwith "sdf"
-    | Next phrase -> failwith "sdfd"
+    | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value))
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n")
   | Malformed -> ANSITerminal.(print_string [green] ("malformed: " ^ input ^ "\n"))
@@ -58,8 +68,8 @@ let main () =
   ANSITerminal.(print_string [blue] "\n\tLoading Stock Data...\n\n");
   match input with
   | exception End_of_file -> ()
-  | file_name -> let stocks = Scraper.get_data input in
+  | file_name -> let stocks = (Scraper.get_data input) in
     ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
-    parse_next stocks
+    parse_next current_state stocks
 
 let () = main ()
