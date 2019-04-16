@@ -41,7 +41,7 @@ let rec parse_next state stocks =
   let input = read_line () in
   try 
     match parse (input) with 
-    | Buy phrase -> let next_state = buy state stocks (List.hd phrase) 
+    | Buy phrase -> let next_state = buy state stocks (String.uppercase_ascii (List.hd phrase))
                         (int_of_string (List.nth phrase 1)) in 
       ANSITerminal.(print_string [green] (string_of_state next_state)); 
       parse_next next_state stocks
@@ -57,18 +57,18 @@ let rec parse_next state stocks =
     | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value))
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n")
-  | Malformed -> ANSITerminal.(print_string [green] ("malformed: " ^ input ^ "\n"))
+  | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks
 
 
 let main () =
   ANSITerminal.(print_string [red]
                   "\nWelcome to snake sim.\nPlease enter the folder of price data to be used\n");
   ANSITerminal.(print_string [] "> ");
-  let input = read_line () in
+  let path = read_line () in
   ANSITerminal.(print_string [blue] "\n\tLoading Stock Data...\n\n");
-  match input with
+  match path with
   | exception End_of_file -> ()
-  | file_name -> let stocks = (Scraper.get_data input) in
+  | file_name -> let stocks = (Scraper.get_data path) in
     ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
     parse_next current_state stocks
 
