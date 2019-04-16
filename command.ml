@@ -3,16 +3,16 @@ open Str
 open Scraper 
 
 (* need to pass a path, perhaps from ui or trade engine *)
-let path = "quantquote_daily_sp500_83986/daily"
+let path = "quantquote_small"
 
 type phrase = string list 
 
 type command = 
-    | Buy of phrase
-    | Sell of phrase
-    | Quit 
-    | Volatility of phrase
-    | Next of phrase
+  | Buy of phrase
+  | Sell of phrase
+  | Quit 
+  | Volatility of phrase
+  | Next of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -35,21 +35,21 @@ let removeFirst list=
   | h::t -> t
 
 let getTickers stocks = 
-    List.map (fun {ticker = tick ; open_prices = _ ; 
-              high_prices = _ ; low_prices = _;
-              close_prices = _; volumes = _ } -> tick) stocks
+  List.map (fun {ticker = tick ; open_prices = _ ; 
+                 high_prices = _ ; low_prices = _;
+                 close_prices = _; volumes = _ } -> tick) stocks
 
 (** checks if string represents a ticker in S&P 500 *)
 let isTicker str = 
-   List.mem str (getTickers (Scraper.get_data path))
+  List.mem str (getTickers (Scraper.get_data path))
 
 let isNum str = 
-    let r = Str.regexp"[0-9]+$" in 
-    Str.string_match r str 0
+  let r = Str.regexp"[0-9]+$" in 
+  Str.string_match r str 0
 
 (** does some regex to check if valid trade *)
 let isValidTrade lst = 
-   isTicker (String.uppercase_ascii (List.nth lst 1)) && isNum (List.nth lst 2)
+  isTicker (String.uppercase_ascii (List.nth lst 1)) && isNum (List.nth lst 2)
 
 
 let parse str = 
@@ -57,17 +57,17 @@ let parse str =
   let finalLst = removeEmpty strlst in 
   if (List.length finalLst = 0) then raise Empty else
   if (List.nth finalLst 0 = "buy" && List.length finalLst > 1 && isValidTrade finalLst) then
-      Buy (removeFirst finalLst)
+    Buy (removeFirst finalLst)
   else if (List.nth finalLst 0 = "sell" && List.length finalLst > 1 && isValidTrade finalLst) then 
-      Sell (removeFirst finalLst)
+    Sell (removeFirst finalLst)
   else if (List.nth finalLst 0 = "quit" && List.length finalLst = 1) then
-       Quit
+    Quit
   else if (List.nth finalLst 0 = "volatility" && List.length finalLst > 1 && 
-            isTicker (List.nth finalLst 1)) then
-            Volatility (removeFirst finalLst)
+           isTicker (List.nth finalLst 1)) then
+    Volatility (removeFirst finalLst)
   else if (List.nth finalLst 0 = "next" && (List.length finalLst = 1 || (List.length finalLst = 2 && 
-           isNum (List.nth finalLst 1)))) then
-           Next (removeFirst finalLst)
+                                                                         isNum (List.nth finalLst 1)))) then
+    Next (removeFirst finalLst)
   else raise Malformed
 
 

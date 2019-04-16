@@ -1,7 +1,5 @@
 open Scraper
 
-let main () =
-  failwith "oof"
-
-(* Execute the game engine. *)
-let () = main ()
+let buy ticker amt = 
+  ANSITerminal.(print_string [] "\nyou bought a thing\n");
+  ticker
