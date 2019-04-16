@@ -17,4 +17,4 @@ exception Malformed
 
 (** [parse string] parses the inputted [string] and returns the
     corresponding command*)
-val parse: string -> command
+val parse: string -> string -> command
