@@ -7,11 +7,11 @@ type state = {
   day : int
 }
 
-let get_ticker stock ticker = 
-  List.find (fun item -> item.ticker = ticker) stock
+let get_ticker stocks ticker = 
+  List.find (fun item -> item.ticker = ticker) stocks
 
-let buy (state:state) stock ticker amt = 
-  let ticker_obj = get_ticker stock ticker in
+let buy (state:state) stocks ticker amt = 
+  let ticker_obj = get_ticker stocks ticker in
   let price = List.nth ticker_obj.close_prices state.day in
   if state.balance >= (price *. float_of_int amt) then
     {
@@ -26,8 +26,8 @@ let buy (state:state) stock ticker amt =
     failwith "ur broke fam"
 
 
-let sell state stock ticker amt = 
-  let ticker_obj = get_ticker stock ticker in
+let sell state stocks ticker amt = 
+  let ticker_obj = get_ticker stocks ticker in
   let price = List.nth ticker_obj.close_prices state.day in
   if List.mem_assoc ticker state.portfolio && List.assoc ticker state.portfolio >= amt then
     {

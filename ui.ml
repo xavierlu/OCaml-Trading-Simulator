@@ -30,9 +30,12 @@ let list_to_array stocks = List.map
           close_prices = Array.of_list close;
           volumes = Array.of_list vol; start_date = date}) stocks 
 
+let sos_helper x y =
+  if snd y <> 0 then x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  " else x ^ ""
+
 let string_of_state state = 
   "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
-  List.fold_left (fun x y -> x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  ") "" state.portfolio 
+  List.fold_left sos_helper "" state.portfolio 
   ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ string_of_int state.day ^ "\n"
 
 let rec parse_next state stocks path =  
@@ -45,7 +48,7 @@ let rec parse_next state stocks path =
                         (int_of_string (List.nth phrase 1)) in 
       ANSITerminal.(print_string [green] (string_of_state next_state)); 
       parse_next next_state stocks path
-    | Sell phrase -> let next_state = sell state stocks (List.hd phrase) 
+    | Sell phrase -> let next_state = sell state stocks (String.uppercase_ascii (List.hd phrase))
                          (int_of_string (List.nth phrase 1)) in 
       ANSITerminal.(print_string [green] (string_of_state next_state)); 
       parse_next next_state stocks path
