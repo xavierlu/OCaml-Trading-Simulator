@@ -15,6 +15,8 @@ type command =
     | Skew of phrase 
     | Analysis of phrase
     | Next of phrase
+    | Help 
+    | View 
 
 (** Raised when an empty command is parsed. *)
 exception Empty
