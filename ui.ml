@@ -55,6 +55,7 @@ let rec parse_next state stocks path =
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "sdf"
     | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value))
+    | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n")
   | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks path
