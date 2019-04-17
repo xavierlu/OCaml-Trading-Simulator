@@ -44,7 +44,6 @@ let getTickers stocks =
 
 (** checks if string represents a ticker in S&P 500 *)
 let isTicker str path = 
- print_endline(string_of_int (List.length  (getTickers (Scraper.get_data path))));
   List.mem str (getTickers (Scraper.get_data path))
 
 let isNum str = 
@@ -70,7 +69,7 @@ let parse str path =
            isTicker (List.nth finalLst 1) path) then
     Volatility (removeFirst finalLst)
   else if (List.nth finalLst 0 = "next" && (List.length finalLst = 1 || (List.length finalLst = 2 && 
-          isNum (List.nth finalLst 1)))) then
+                                                                         isNum (List.nth finalLst 1)))) then
     Next (removeFirst finalLst)
   else if (List.nth finalLst 0 = "sma" && List.length finalLst = 3 && 
            isTicker (List.nth finalLst 1) path && isNum (List.nth finalLst 2)) then
@@ -82,7 +81,7 @@ let parse str path =
            && isTicker (List.nth finalLst 1) path) then
     Analysis (removeFirst finalLst)
   else if (List.nth finalLst 0 = "price") then
-           Price (removeFirst finalLst)
+    Price (removeFirst finalLst)
   else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed
 

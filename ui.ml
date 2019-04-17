@@ -38,7 +38,7 @@ let rec parse_next state stocks path =
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "unimplemented"
     | Price phrase -> ANSITerminal.(print_string [green] (string_of_float (get_price stocks (List.nth phrase 1) state))); 
-                      parse_next state stocks path
+      parse_next state stocks path
     | Next phrase -> parse_next (next state stocks) stocks path 
     | _ -> failwith "unimplemented"
   with 
@@ -83,7 +83,7 @@ let main () =
     ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
     let dates = dates_helper stocks "999999999" in
     let date = check_valid_date dates in 
-    let (start_state:Trade.state) = {balance = 1000.; portfolio = []; value = 0.; day = date; dates = dates} in 
+    let (start_state:Trade.state) = {balance = 10000.; portfolio = []; value = 0.; day = date; dates = dates} in 
     parse_next start_state stocks path 
 
 let () = main ()
