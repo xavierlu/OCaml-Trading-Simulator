@@ -4,7 +4,8 @@ type state = {
   balance: float;
   portfolio: (string * int) list;
   value: float; 
-  day : string
+  day: string;
+  dates: string list
 }
 
 let get_ticker stocks ticker = 
@@ -20,7 +21,8 @@ let buy (state:state) stocks ticker amt =
         then List.map (fun item -> if fst item = ticker then (fst item, snd item + amt) else item) state.portfolio
         else (ticker, amt) :: state.portfolio;
       value = state.value +. (price *. float_of_int amt); 
-      day = state.day
+      day = state.day;
+      dates = state.dates;
     }
   else 
     failwith "ur broke fam"
@@ -34,7 +36,8 @@ let sell state stocks ticker amt =
       balance = state.balance +. (price *. float_of_int amt);
       portfolio = List.map (fun item -> if fst item = ticker then (fst item, snd item - amt) else item) state.portfolio;
       value = state.value -. (price *. float_of_int amt); 
-      day = state.day
+      day = state.day;
+      dates = state.dates;
     }
   else 
     failwith "fam why u tryna sell more than what u have"

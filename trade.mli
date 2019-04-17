@@ -4,7 +4,8 @@ type state = {
   balance: float;
   portfolio: (string * int) list;
   value: float; 
-  day : int
+  day : string;
+  dates: string list;
 }
 
 val buy : state -> stock list -> string -> int -> state 

@@ -2,41 +2,13 @@ open Scraper
 open Command
 open Trade
 
-type stock_array = {
-  ticker : string;
-  open_prices : float array;
-  high_prices: float array;
-  low_prices: float array;
-  close_prices : float array;
-  volumes: float array;
-  start_date: string
-}
-
-let (current_state:Trade.state) = {balance = 1000.; portfolio = []; value = 0.; day = 0}
-
-(* turn all lists in stock type to arrays *)
-let list_to_array stocks = List.map 
-    (fun ({ticker = t;
-           open_prices = op;
-           high_prices = high;
-           low_prices = low;
-           close_prices = close;
-           volumes = vol;
-           start_date = date;} : Scraper.stock)
-      -> {ticker = t;
-          open_prices = Array.of_list op;
-          high_prices = Array.of_list high;
-          low_prices = Array.of_list low;
-          close_prices = Array.of_list close;
-          volumes = Array.of_list vol; start_date = date}) stocks 
-
 let sos_helper x y =
   if snd y <> 0 then x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  " else x ^ ""
 
 let string_of_state state = 
   "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
   List.fold_left sos_helper "" state.portfolio 
-  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ string_of_int state.day ^ "\n"
+  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ state.day ^ "\n"
 
 let rec parse_next state stocks path =  
   ANSITerminal.(print_string [red] "Please enter a command, or type help for a list of commands");
@@ -64,6 +36,31 @@ let rec parse_next state stocks path =
   | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks path
 
 
+
+let date_cmp d1 d2 =
+  if int_of_string d1 > int_of_string d2 then 1 else 
+  if int_of_string d1 = int_of_string d2 then 0 else -1
+
+let rec add_dates stock_price_data earliest = 
+  match stock_price_data with 
+  |[] -> []
+  |h::t -> if date_cmp (fst h) earliest = -1 then (fst h)::(add_dates t earliest)
+    else add_dates [] earliest
+
+let rec dates_helper (stocks:stock list) earliest = 
+  match stocks with
+  | [] -> []
+  | h::t -> 
+    if date_cmp h.start_date earliest = -1 then (add_dates h.open_prices earliest)@(dates_helper t h.start_date)
+    else dates_helper t earliest
+
+let rec check_valid_date dates =
+  ANSITerminal.(print_string [red] "Please enter a start date.");
+  ANSITerminal.(print_string [] "\n> ");
+  let date = read_line () in
+  if date = "quit" then failwith "byeeee"
+  else if List.mem date dates then date else check_valid_date dates
+
 let main () =
   ANSITerminal.(print_string [red]
                   "\nWelcome to snake sim.\nPlease enter the folder of price data to be used\n");
@@ -74,6 +71,10 @@ let main () =
   | exception End_of_file -> ()
   | file_name -> let stocks = (Scraper.get_data path) in
     ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
-    parse_next current_state stocks path 
+    let dates = dates_helper stocks "999999999" in
+    print_endline (List.hd dates);
+    let date = check_valid_date dates in 
+    let (start_state:Trade.state) = {balance = 1000.; portfolio = []; value = 0.; day = date; dates = dates} in 
+    parse_next start_state stocks path 
 
 let () = main ()

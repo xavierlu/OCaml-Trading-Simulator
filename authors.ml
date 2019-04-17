@@ -1,1 +1,1 @@
-let hours = [1,1,1,1]
+let hours_worked = [1;1;1;1]
