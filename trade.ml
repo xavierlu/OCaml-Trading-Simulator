@@ -8,6 +8,25 @@ type state = {
   dates: string list
 }
 
+let rec index_of state dates = 
+match dates with 
+|[] -> failwith "date not found"
+|h::t -> if h = state.day then 0 else 1 + index_of state t
+
+let update_val state new_day stocks =
+  failwith "I need sleep but I know what to do"
+     
+
+let next state stocks =
+  try 
+   let new_day = List.nth state.dates (index_of state state.dates + 1) in
+   {balance = state.balance;
+    portfolio = state.portfolio;
+    value = update_val state new_day stocks;
+    day = new_day;
+    dates = state.dates}
+    with _ -> failwith "oof, haven't handled end of simulation yet"
+
 let get_ticker stocks ticker = 
   List.find (fun item -> item.ticker = ticker) stocks
 

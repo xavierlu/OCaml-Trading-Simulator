@@ -29,7 +29,8 @@ let rec parse_next state stocks path =
       \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "sdf"
-    | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value))
+    | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value));
+                      parse_next (next state) stocks path 
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n")
@@ -72,7 +73,6 @@ let main () =
   | file_name -> let stocks = (Scraper.get_data path) in
     ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
     let dates = dates_helper stocks "999999999" in
-    print_endline (List.hd dates);
     let date = check_valid_date dates in 
     let (start_state:Trade.state) = {balance = 1000.; portfolio = []; value = 0.; day = date; dates = dates} in 
     parse_next start_state stocks path 
