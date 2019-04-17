@@ -15,8 +15,9 @@ let get_ticker stocks ticker =
   List.find (fun item -> item.ticker = ticker) stocks
 
 let get_price stocks ticker state =
-  let obj = get_ticker stocks ticker in
-  List.assoc  state.day obj.close_prices
+  print_endline ticker;
+  let obj = get_ticker stocks (String.uppercase_ascii ticker) in
+  List.assoc state.day obj.close_prices
 
 let rec parse_next state stocks path =  
   ANSITerminal.(print_string [red] "Please enter a command, or type help for a list of commands");
@@ -37,7 +38,7 @@ let rec parse_next state stocks path =
       \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "unimplemented"
-    | Price phrase -> ANSITerminal.(print_string [green] (string_of_float (get_price stocks (List.nth phrase 1) state))); 
+    | Price phrase -> ANSITerminal.(print_string [green] (string_of_float (get_price stocks (List.nth phrase 0) state))); 
       parse_next state stocks path
     | Next phrase -> parse_next (next state stocks) stocks path 
     | _ -> failwith "unimplemented"

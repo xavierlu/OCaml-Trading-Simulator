@@ -3,11 +3,11 @@
     ticker symbol, a list of opening prices, and a list of closing prices *)
 type stock = {
   ticker : string;
-  open_prices : (string *float) list;
-  high_prices: (string *float) list;
-  low_prices: (string *float) list;
-  close_prices : (string *float) list;
-  volumes: (string *float) list;
+  open_prices : (string * float) list;
+  high_prices: (string * float) list;
+  low_prices: (string * float) list;
+  close_prices : (string * float) list;
+  volumes: (string * float) list;
   start_date: string;
 }
 

@@ -83,7 +83,7 @@ let parse str path =
   else if (List.nth finalLst 0 = "analysis" && List.length finalLst = 2 
            && isTicker (List.nth finalLst 1) path) then
     Analysis (removeFirst finalLst)
-  else if (List.nth finalLst 0 = "price") then
+  else if (List.nth finalLst 0 = "price" && List.length finalLst = 2) then
     Price (removeFirst finalLst)
   else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed
