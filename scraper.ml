@@ -2,11 +2,11 @@ open Unix
 
 type stock = {
   ticker : string;
-  open_prices : float list;
-  high_prices: float list;
-  low_prices: float list;
-  close_prices : float list;
-  volumes: float list;
+  open_prices : (string * float) list;
+  high_prices: (string * float) list;
+  low_prices: (string * float) list;
+  close_prices : (string * float) list;
+  volumes: (string * float) list;
   start_date: string;
 }
 
@@ -15,16 +15,17 @@ type stock = {
     [filename] exists to make parsing the ticker easier *)
 let file_crawler file filename = 
   let separator = ',' in
-  let rec crawler file (op: float list) (high: float list) 
-            (low: float list) (cp: float list) (vol: float list) start_date int= 
+  let rec crawler file (op: (string *float) list) (high: (string *float) list) 
+            (low: (string *float) list) (cp: (string *float) list) (vol: (string *float) list) start_date int= 
     try
       let next_line = input_line file in
       let separated = String.split_on_char separator next_line in
-      crawler file (float_of_string (List.nth separated 2)::op) 
-        (float_of_string (List.nth separated 3)::high) 
-        (float_of_string (List.nth separated 4)::low) 
-        (float_of_string (List.nth separated 5)::cp) 
-        (float_of_string (List.nth separated 6)::vol)
+      let date = List.nth separated 0 in
+      crawler file ( (date, float_of_string (List.nth separated 2))::op) 
+        ((date, float_of_string (List.nth separated 3))::high) 
+        ((date, float_of_string (List.nth separated 4))::low) 
+        ((date, float_of_string (List.nth separated 5))::cp) 
+        ((date, float_of_string (List.nth separated 6))::vol)
         (if int = 0 then List.nth separated 0 else start_date)
         1
     with _ ->
