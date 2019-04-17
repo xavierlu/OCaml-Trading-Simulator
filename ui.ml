@@ -38,7 +38,7 @@ let rec parse_next state stocks path =
       \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "unimplemented"
-    | Price phrase -> ANSITerminal.(print_string [green] (string_of_float (get_price stocks (List.nth phrase 0) state))); 
+    | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.nth phrase 0) state)) ^ "\n")); 
       parse_next state stocks path
     | Next phrase -> parse_next (next state stocks) stocks path 
     | _ -> failwith "unimplemented"
@@ -46,6 +46,9 @@ let rec parse_next state stocks path =
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks path
   | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks path
   | Broke -> ANSITerminal.(print_string [green] "It smells like broke in here\n"); parse_next state stocks path
+  | EndOfSim -> ANSITerminal.(print_string [green] "End of simulation.\n");
+    ANSITerminal.(print_string [green] ("You started with $10000, now you have:\n" ^ (string_of_state state) ^ "\n"));
+    ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
 
 
 let date_cmp d1 d2 =

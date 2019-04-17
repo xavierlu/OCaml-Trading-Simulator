@@ -10,6 +10,8 @@ type state = {
 
 exception Broke
 
+exception EndOfSim
+
 let rec index_of state dates = 
   match dates with 
   |[] -> failwith "date not found"
@@ -34,7 +36,7 @@ let next state stocks =
      value = update_val state.portfolio new_day stocks;
      day = new_day;
      dates = state.dates}
-  with _ -> failwith "oof, haven't handled end of simulation yet"
+  with _ -> raise EndOfSim
 
 
 let buy (state:state) stocks ticker amt = 

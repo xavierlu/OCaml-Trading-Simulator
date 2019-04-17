@@ -10,6 +10,8 @@ type state = {
 
 exception Broke
 
+exception EndOfSim
+
 val buy : state -> stock list -> string -> int -> state 
 
 val sell : state -> stock list -> string -> int -> state 
