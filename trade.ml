@@ -4,7 +4,7 @@ type state = {
   balance: float;
   portfolio: (string * int) list;
   value: float; 
-  day : int
+  day : string
 }
 
 let get_ticker stocks ticker = 
@@ -12,7 +12,7 @@ let get_ticker stocks ticker =
 
 let buy (state:state) stocks ticker amt = 
   let ticker_obj = get_ticker stocks ticker in
-  let price = List.nth ticker_obj.close_prices state.day in
+  let price = List.assoc state.day ticker_obj.close_prices  in
   if state.balance >= (price *. float_of_int amt) then
     {
       balance = state.balance -. (price *. float_of_int amt);
@@ -28,7 +28,7 @@ let buy (state:state) stocks ticker amt =
 
 let sell state stocks ticker amt = 
   let ticker_obj = get_ticker stocks ticker in
-  let price = List.nth ticker_obj.close_prices state.day in
+  let price = List.assoc state.day ticker_obj.close_prices  in
   if List.mem_assoc ticker state.portfolio && List.assoc ticker state.portfolio >= amt then
     {
       balance = state.balance +. (price *. float_of_int amt);
