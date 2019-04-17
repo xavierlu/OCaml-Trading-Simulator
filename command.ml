@@ -1,17 +1,20 @@
 
+#load "str.cma";;
+
 open Str
 open Scraper 
 
 type phrase = string list 
 
 type command = 
-  | Buy of phrase
-  | Sell of phrase
-  | Quit 
-  | Help
-  | View
-  | Volatility of phrase
-  | Next of phrase
+    | Buy of phrase
+    | Sell of phrase
+    | Quit 
+    | Volatility of phrase
+    | SMA of phrase 
+    | Skew of phrase 
+    | Analysis of phrase
+    | Next of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -55,22 +58,27 @@ let parse str path =
   let strlst = String.split_on_char ' ' str in
   let finalLst = removeEmpty strlst in 
   if (List.length finalLst = 0) then raise Empty else
-  if (List.nth finalLst 0 = "buy" && List.length finalLst > 1 && isValidTrade finalLst path) then
-    Buy (removeFirst finalLst)
-  else if (List.nth finalLst 0 = "sell" && List.length finalLst > 1 && isValidTrade finalLst path) then 
-    Sell (removeFirst finalLst)
+  if (List.nth finalLst 0 = "buy" && List.length finalLst = 3  && isValidTrade finalLst path) then
+      Buy (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "sell" && List.length finalLst = 3 && isValidTrade finalLst path) then 
+      Sell (removeFirst finalLst)
   else if (List.nth finalLst 0 = "quit" && List.length finalLst = 1) then
-    Quit
-  else if (List.nth finalLst 0 = "help" && List.length finalLst = 1) then
-    Help
-  else if (List.nth finalLst 0 = "view" && List.length finalLst = 1) then
-    View
-  else if (List.nth finalLst 0 = "volatility" && List.length finalLst > 1 && 
-           isTicker (List.nth finalLst 1) path)  then
-    Volatility (removeFirst finalLst)
+       Quit
+  else if (List.nth finalLst 0 = "volatility" && List.length finalLst = 2 && 
+            isTicker (List.nth finalLst 1) path) then
+            Volatility (removeFirst finalLst)
   else if (List.nth finalLst 0 = "next" && (List.length finalLst = 1 || (List.length finalLst = 2 && 
-                                                                         isNum (List.nth finalLst 1)))) then
-    Next (removeFirst finalLst)
+           isNum (List.nth finalLst 1)))) then
+           Next (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "sma" && List.length finalLst = 3 && 
+            isTicker (List.nth finalLst 1) path && isNum (List.nth finalLst 2)) then
+            SMA (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "skew" && List.length finalLst = 2 
+          && isTicker (List.nth finalLst 1) path) then
+            Skew (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "analysis" && List.length finalLst = 2 
+          && isTicker (List.nth finalLst 1) path) then
+            Analysis (removeFirst finalLst)
   else raise Malformed
 
 
