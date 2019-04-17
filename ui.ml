@@ -1,6 +1,7 @@
 open Scraper
 open Command
 open Trade
+open Analysis 
 
 let sos_helper x y =
   if snd y <> 0 then x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  " else x ^ ""
@@ -9,6 +10,13 @@ let string_of_state state =
   "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
   List.fold_left sos_helper "" state.portfolio 
   ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ state.day ^ "\n"
+
+let get_ticker stocks ticker = 
+  List.find (fun item -> item.ticker = ticker) stocks
+
+let get_price stocks ticker state =
+  let obj = get_ticker stocks ticker in
+  List.assoc  state.day obj.close_prices
 
 let rec parse_next state stocks path =  
   ANSITerminal.(print_string [red] "Please enter a command, or type help for a list of commands");
@@ -28,9 +36,10 @@ let rec parse_next state stocks path =
     | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say
       \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
-    | Volatility phrase -> failwith "sdf"
-    | Next phrase -> ANSITerminal.(print_string [green] (string_of_float state.balance ^ "\n" ^ string_of_float state.value));
-                      parse_next (next state) stocks path 
+    | Volatility phrase -> failwith "unimplemented"
+    | Price phrase -> ANSITerminal.(print_string [green] (string_of_float (get_price stocks (List.nth phrase 1) state))); 
+                      parse_next state stocks path
+    | Next phrase -> parse_next (next state stocks) stocks path 
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n")

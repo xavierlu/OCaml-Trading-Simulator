@@ -12,5 +12,5 @@ val buy : state -> stock list -> string -> int -> state
 
 val sell : state -> stock list -> string -> int -> state 
 
-val next : state -> state
+val next : state -> stock list -> state
 

@@ -44,6 +44,7 @@ let getTickers stocks =
 
 (** checks if string represents a ticker in S&P 500 *)
 let isTicker str path = 
+ print_endline(string_of_int (List.length  (getTickers (Scraper.get_data path))));
   List.mem str (getTickers (Scraper.get_data path))
 
 let isNum str = 
@@ -80,9 +81,9 @@ let parse str path =
   else if (List.nth finalLst 0 = "analysis" && List.length finalLst = 2 
            && isTicker (List.nth finalLst 1) path) then
     Analysis (removeFirst finalLst)
-  else if (List.nth finalLst 0 = "price" && List.length finalLst = 2 
-           && isTicker (List.nth finalLst 1) path) then
+  else if (List.nth finalLst 0 = "price") then
            Price (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed
 
 
