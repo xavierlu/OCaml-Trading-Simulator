@@ -15,6 +15,7 @@ type command =
   | Next of phrase
   | Help 
   | View 
+  | Price of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -68,7 +69,7 @@ let parse str path =
            isTicker (List.nth finalLst 1) path) then
     Volatility (removeFirst finalLst)
   else if (List.nth finalLst 0 = "next" && (List.length finalLst = 1 || (List.length finalLst = 2 && 
-                                                                         isNum (List.nth finalLst 1)))) then
+          isNum (List.nth finalLst 1)))) then
     Next (removeFirst finalLst)
   else if (List.nth finalLst 0 = "sma" && List.length finalLst = 3 && 
            isTicker (List.nth finalLst 1) path && isNum (List.nth finalLst 2)) then
@@ -79,6 +80,9 @@ let parse str path =
   else if (List.nth finalLst 0 = "analysis" && List.length finalLst = 2 
            && isTicker (List.nth finalLst 1) path) then
     Analysis (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "price" && List.length finalLst = 2 
+           && isTicker (List.nth finalLst 1) path) then
+           Price (removeFirst finalLst)
   else raise Malformed
 
 

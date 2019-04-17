@@ -11,6 +11,7 @@ type command =
     | Next of phrase
     | Help
     | View
+    | Price of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
