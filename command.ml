@@ -65,6 +65,8 @@ let parse str path =
     Sell (removeFirst finalLst)
   else if (List.nth finalLst 0 = "quit" && List.length finalLst = 1) then
     Quit
+  else if (List.nth finalLst 0 = "view" && List.length finalLst = 1) then
+    View
   else if (List.nth finalLst 0 = "volatility" && List.length finalLst = 2 && 
            isTicker (List.nth finalLst 1) path) then
     Volatility (removeFirst finalLst)
