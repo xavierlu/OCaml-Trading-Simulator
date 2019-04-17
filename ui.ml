@@ -42,9 +42,9 @@ let rec parse_next state stocks path =
     | Next phrase -> parse_next (next state stocks) stocks path 
     | _ -> failwith "unimplemented"
   with 
-  | Empty -> ANSITerminal.(print_string [green] "empty command\n")
+  | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks path
   | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks path
-
+  | Broke -> ANSITerminal.(print_string [green] "It smells like broke in here\n"); parse_next state stocks path
 
 
 let date_cmp d1 d2 =

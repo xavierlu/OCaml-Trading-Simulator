@@ -70,8 +70,9 @@ let parse str path =
   else if (List.nth finalLst 0 = "volatility" && List.length finalLst = 2 && 
            isTicker (List.nth finalLst 1) path) then
     Volatility (removeFirst finalLst)
-  else if (List.nth finalLst 0 = "next" && (List.length finalLst = 1 || (List.length finalLst = 2 && 
-                                                                         isNum (List.nth finalLst 1)))) then
+  else if ((List.nth finalLst 0 = "next" || List.nth finalLst 0 = "sleep") 
+           && (List.length finalLst = 1 || (List.length finalLst = 2 && 
+                                            isNum (List.nth finalLst 1)))) then
     Next (removeFirst finalLst)
   else if (List.nth finalLst 0 = "sma" && List.length finalLst = 3 && 
            isTicker (List.nth finalLst 1) path && isNum (List.nth finalLst 2)) then

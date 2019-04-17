@@ -8,10 +8,12 @@ type state = {
   dates: string list
 }
 
+exception Broke
+
 let rec index_of state dates = 
-match dates with 
-|[] -> failwith "date not found"
-|h::t -> if h = state.day then 0 else 1 + index_of state t
+  match dates with 
+  |[] -> failwith "date not found"
+  |h::t -> if h = state.day then 0 else 1 + index_of state t
 
 let get_ticker stocks ticker = 
   List.find (fun item -> item.ticker = ticker) stocks
@@ -20,19 +22,19 @@ let rec update_val portfolio new_day stocks =
   match portfolio with 
   |[]-> 0.0
   |h::t -> let ticker_obj = get_ticker stocks (fst h) in
-  let price = List.assoc new_day ticker_obj.close_prices  in
-  price *. (float_of_int (snd h)) +. update_val t new_day stocks
-   
+    let price = List.assoc new_day ticker_obj.close_prices  in
+    price *. (float_of_int (snd h)) +. update_val t new_day stocks
+
 let next state stocks =
   try 
-   let new_day = List.nth state.dates (index_of state state.dates + 1) in
-   ANSITerminal.(print_string [green] ("Date: " ^ new_day ^ "\n")) ;
-   {balance = state.balance;
-    portfolio = state.portfolio;
-    value = update_val state.portfolio new_day stocks;
-    day = new_day;
-    dates = state.dates}
-    with _ -> failwith "oof, haven't handled end of simulation yet"
+    let new_day = List.nth state.dates (index_of state state.dates + 1) in
+    ANSITerminal.(print_string [green] ("Date: " ^ new_day ^ "\n")) ;
+    {balance = state.balance;
+     portfolio = state.portfolio;
+     value = update_val state.portfolio new_day stocks;
+     day = new_day;
+     dates = state.dates}
+  with _ -> failwith "oof, haven't handled end of simulation yet"
 
 
 let buy (state:state) stocks ticker amt = 
@@ -49,7 +51,7 @@ let buy (state:state) stocks ticker amt =
       dates = state.dates;
     }
   else 
-    failwith "ur broke fam"
+    raise Broke
 
 
 let sell state stocks ticker amt = 
@@ -64,5 +66,6 @@ let sell state stocks ticker amt =
       dates = state.dates;
     }
   else 
-    failwith "fam why u tryna sell more than what u have"
+    raise Broke
+
 
