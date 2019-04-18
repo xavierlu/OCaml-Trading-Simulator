@@ -61,8 +61,7 @@ let rec check_valid_date dates =
   else if List.mem date dates then date 
   else 
     let _ = ANSITerminal.
-              (print_string [red] "Invalid Date. Are you sure that's not a 
-              weekend or a federal holiday?\n") in
+              (print_string [red] "Invalid Date. Are you sure that's not a weekend or a federal holiday?\n") in
     check_valid_date dates
 
 (** [get_valid_stocks] returns a tuple where the first element is the subset of
@@ -96,8 +95,7 @@ let rec parse_next state stocks s_stocks path =
       parse_next next_state stocks s_stocks path
     | Quit -> ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
     | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say:
-      \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tsma [ticker] [period]
-      \n\tprice [ticker]\n\tview\n\tnext [optional:length]\n\tquit\n\n"); 
+      \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tsma [ticker] [period]\n\tprice [ticker]\n\tview\n\tnext [optional:length]\n\tquit\n\n"); 
       parse_next state stocks s_stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); 
       parse_next state stocks s_stocks path
@@ -135,8 +133,7 @@ let rec parse_next state stocks s_stocks path =
     that file *)
 let main () =
   ANSITerminal.(print_string [red]
-                  "\nWelcome to snake sim.\nPlease enter the 
-                  folder of price data to be used\n");
+                  "\nWelcome to snake sim.\nPlease enter the folder of price data to be used\n");
   ANSITerminal.(print_string [] "> ");
   let path = read_line () in
   ANSITerminal.(print_string [blue] "\n\tLoading Stock Data...\n\n");
