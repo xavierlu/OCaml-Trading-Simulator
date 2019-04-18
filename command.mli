@@ -1,17 +1,17 @@
 type phrase = string list 
 
 type command = 
-    | Buy of phrase
-    | Sell of phrase
-    | Quit 
-    | Volatility of phrase
-    | SMA of phrase 
-    | Skew of phrase 
-    | Analysis of phrase
-    | Next of phrase
-    | Help
-    | View
-    | Price of phrase
+  | Buy of phrase
+  | Sell of phrase
+  | Quit 
+  | Volatility of phrase
+  | SMA of phrase 
+  | Skew of phrase 
+  | Analysis of phrase
+  | Next of phrase
+  | Help
+  | View
+  | Price of phrase
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -21,4 +21,4 @@ exception Malformed
 
 (** [parse string] parses the inputted [string] and returns the
     corresponding command*)
-val parse: string -> string -> command
+val parse: string -> Scraper.stock list -> command

@@ -10,7 +10,7 @@ type state = {
 
 exception Broke
 
-exception EndOfSim
+exception EndOfSim of state
 
 let rec index_of state dates = 
   match dates with 
@@ -36,7 +36,12 @@ let next state stocks steps =
      value = update_val state.portfolio new_day stocks;
      day = new_day;
      dates = state.dates}
-  with _ -> raise EndOfSim
+  with _ -> raise (EndOfSim 
+                     {balance = state.balance;
+                      portfolio = state.portfolio;
+                      value = update_val state.portfolio "20130809" stocks;
+                      day = "20130809";
+                      dates = state.dates})
 
 
 let buy (state:state) stocks ticker amt = 
