@@ -19,6 +19,41 @@ let get_price stocks ticker state =
   let obj = get_ticker stocks (String.uppercase_ascii ticker) in
   List.assoc state.day obj.close_prices
 
+let rec parse_next state stocks path =  
+  ANSITerminal.(print_string [red] "Please enter a command, or type help for a list of commands");
+  ANSITerminal.(print_string [] "\n> ");
+  let input = read_line () in
+  try 
+    match parse input path with 
+    | Buy phrase -> let next_state = buy state stocks (String.uppercase_ascii (List.hd phrase))
+                        (int_of_string (List.nth phrase 1)) in 
+      ANSITerminal.(print_string [green] (string_of_state next_state)); 
+      parse_next next_state stocks path
+    | Sell phrase -> let next_state = sell state stocks (String.uppercase_ascii (List.hd phrase))
+                         (int_of_string (List.nth phrase 1)) in 
+      ANSITerminal.(print_string [green] (string_of_state next_state)); 
+      parse_next next_state stocks path
+    | Quit -> ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
+    | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say
+      \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
+    | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
+    | Volatility phrase -> failwith "unimplemented"
+    | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.hd phrase) state)) ^ "\n")); 
+      parse_next state stocks path
+    | Next phrase -> parse_next (next state stocks (int_of_string (List.hd phrase))) stocks path 
+    | SMA phrase -> 
+      ANSITerminal.(print_string [green] (string_of_float 
+                                            (sma (get_ticker stocks (List.hd phrase)) (int_of_string (List.nth phrase 1)) state.day)));
+      parse_next state stocks path
+    | _ -> failwith "unimplemented"
+  with 
+  | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks path
+  | Malformed -> ANSITerminal.(print_string [green] ("Not a valid command: " ^ input ^ "\n")); parse_next state stocks path
+  | Broke -> ANSITerminal.(print_string [green] "It smells like broke in here\n"); parse_next state stocks path
+  | EndOfSim _ -> ANSITerminal.(print_string [green] "End of simulation.\n");
+    ANSITerminal.(print_string [green] ("You started with $10000, now you have:\n" ^ (string_of_state state) ^ "\n"));
+    ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
+
 
 let date_cmp d1 d2 =
   if int_of_string d1 > int_of_string d2 then 1 else 
