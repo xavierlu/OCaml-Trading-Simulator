@@ -27,9 +27,9 @@ let rec update_val portfolio new_day stocks =
     let price = List.assoc new_day ticker_obj.close_prices  in
     price *. (float_of_int (snd h)) +. update_val t new_day stocks
 
-let next state stocks =
+let next state stocks steps =
   try 
-    let new_day = List.nth state.dates (index_of state state.dates + 1) in
+    let new_day = List.nth state.dates (index_of state state.dates + steps) in
     ANSITerminal.(print_string [green] ("Date: " ^ new_day ^ "\n")) ;
     {balance = state.balance;
      portfolio = state.portfolio;

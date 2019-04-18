@@ -38,9 +38,9 @@ let rec parse_next state stocks path =
       \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tvolatility\n\n"); parse_next state stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); parse_next state stocks path
     | Volatility phrase -> failwith "unimplemented"
-    | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.nth phrase 0) state)) ^ "\n")); 
+    | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.hd phrase) state)) ^ "\n")); 
       parse_next state stocks path
-    | Next phrase -> parse_next (next state stocks) stocks path 
+    | Next phrase -> parse_next (next state stocks (int_of_string (List.hd phrase))) stocks path 
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks path
