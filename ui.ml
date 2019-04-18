@@ -41,6 +41,10 @@ let rec parse_next state stocks path =
     | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.hd phrase) state)) ^ "\n")); 
       parse_next state stocks path
     | Next phrase -> parse_next (next state stocks (int_of_string (List.hd phrase))) stocks path 
+    | SMA phrase -> 
+      ANSITerminal.(print_string [green] (string_of_float 
+                                            (sma (get_ticker stocks (List.hd phrase)) (int_of_string (List.nth phrase 1)) state.day)));
+      parse_next state stocks path
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks path

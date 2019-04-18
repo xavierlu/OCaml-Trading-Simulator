@@ -44,7 +44,7 @@ let getTickers stocks =
 
 (** checks if string represents a ticker in S&P 500 *)
 let isTicker str path = 
-  List.mem str (getTickers (Scraper.get_data path))
+  List.mem (String.uppercase_ascii str) (getTickers (Scraper.get_data path))
 
 let isNum str = 
   let r = Str.regexp"[0-9]+$" in 
