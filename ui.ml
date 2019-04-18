@@ -75,6 +75,9 @@ let rec parse_next state stocks (s_stocks:Scraper.stock list * Scraper.stock lis
       parse_next state stocks s_stocks path
     | Next phrase -> let next_state = next state stocks (int_of_string (List.hd phrase)) in 
       parse_next (next_state) stocks (get_valid_stocks stocks next_state.day [] []) path 
+    | SMA phrase -> 
+      ANSITerminal.(print_string [green] (string_of_float 
+                                            (sma (get_ticker stocks (List.hd phrase)) (int_of_string (List.nth phrase 1)) state.day)));
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); parse_next state stocks s_stocks path
