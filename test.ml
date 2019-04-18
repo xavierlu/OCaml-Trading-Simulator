@@ -50,7 +50,7 @@ let analysis_tests =
   let ba = file_crawler file "table_ba.csv" in
   let aapl = file_crawler file "table_aapl.csv" in
   [
-    momentum_test "momentum_test_1" aapl 5 (5.106); 
+    (**momentum_test "momentum_test_1" aapl 5 (5.106); 
     momentum_test "momentum_test_2" goog 0 0.0;
     momentum_test "momentum_test_3" ba 2 (1.12);
 
@@ -64,7 +64,7 @@ let analysis_tests =
 
     vol_test "vol_test_1" goog 3 1.2406002131585;
     vol_test "vol_test_2" ba 0 0.0;
-    vol_test "vol_test_3" aapl 2 3.345;
+    vol_test "vol_test_3" aapl 2 3.345;*)
   ]
 
 let command_tests =
