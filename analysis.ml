@@ -47,6 +47,8 @@ let vol stock n =
              get_stdev t n in
   sqrt (get_stdev stock.close_prices price_length)
 
+(**[just_priced priceData] returns a list of the second elements of each tuple
+   in [priceData] *)
 let rec just_prices priceData = 
   match priceData with
   |[] -> []
@@ -60,7 +62,8 @@ let skew stock =
   let sorted_prices =  List.sort compare (just_prices stock.close_prices) in 
   let len = List.length stock.close_prices in 
   let median = if len mod 2 = 1 then List.nth sorted_prices ((len-1)/2)
-    else ( List.nth sorted_prices (len/2) +. List.nth sorted_prices (len/2 -1)) /. 2.0
+    else ( List.nth sorted_prices (len/2) 
+           +. List.nth sorted_prices (len/2 -1)) /. 2.0
   in
   let mean = get_mean stock.close_prices len in
   let stdev = vol stock len in 

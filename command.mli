@@ -1,5 +1,8 @@
+(** Representation of a phrase of extra information that may come after a 
+    command verb*)
 type phrase = string list 
 
+(** Representation of a command that the user can input*)
 type command = 
   | Buy of phrase
   | Sell of phrase

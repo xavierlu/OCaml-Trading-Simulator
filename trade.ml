@@ -8,18 +8,22 @@ type state = {
   dates: string list
 }
 
+(** TODO - maybe change to of string to better represent errors *)
 exception Broke
 
 exception EndOfSim of state
 
+(** [index_of] returns the indes of a specific day in a state*)
 let rec index_of state dates = 
   match dates with 
   |[] -> failwith "date not found"
   |h::t -> if h = state.day then 0 else 1 + index_of state t
 
+(** [get_ticker] returns a stock associated with [ticker] in [stocks] *)
 let get_ticker stocks ticker = 
   List.find (fun item -> item.ticker = ticker) stocks
 
+(** [update_val] updates the state with the new prices from [new_day] *)
 let rec update_val portfolio new_day stocks =
   match portfolio with 
   |[]-> 0.0
@@ -51,7 +55,9 @@ let buy (state:state) stocks ticker amt =
     {
       balance = state.balance -. (price *. float_of_int amt);
       portfolio = if List.mem_assoc ticker state.portfolio 
-        then List.map (fun item -> if fst item = ticker then (fst item, snd item + amt) else item) state.portfolio
+        then List.map (fun item -> 
+            if fst item = ticker 
+            then (fst item, snd item + amt) else item) state.portfolio
         else (ticker, amt) :: state.portfolio;
       value = state.value +. (price *. float_of_int amt); 
       day = state.day;
@@ -64,10 +70,13 @@ let buy (state:state) stocks ticker amt =
 let sell state stocks ticker amt = 
   let ticker_obj = get_ticker stocks ticker in
   let price = List.assoc state.day ticker_obj.close_prices  in
-  if List.mem_assoc ticker state.portfolio && List.assoc ticker state.portfolio >= amt then
+  if List.mem_assoc ticker state.portfolio 
+  && List.assoc ticker state.portfolio >= amt then
     {
       balance = state.balance +. (price *. float_of_int amt);
-      portfolio = List.map (fun item -> if fst item = ticker then (fst item, snd item - amt) else item) state.portfolio;
+      portfolio = List.map (fun item -> 
+          if fst item = ticker 
+          then (fst item, snd item - amt) else item) state.portfolio;
       value = state.value -. (price *. float_of_int amt); 
       day = state.day;
       dates = state.dates;

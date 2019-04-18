@@ -16,7 +16,8 @@ type stock = {
 let file_crawler file filename = 
   let separator = ',' in
   let rec crawler file (op: (string *float) list) (high: (string *float) list) 
-            (low: (string *float) list) (cp: (string *float) list) (vol: (string *float) list) start_date int= 
+      (low: (string *float) list) (cp: (string *float) list) 
+      (vol: (string *float) list) start_date int= 
     try
       let next_line = input_line file in
       let separated = String.split_on_char separator next_line in
@@ -32,10 +33,10 @@ let file_crawler file filename =
       let t_length = (String.index filename '.') - 6 in
       let t = String.uppercase_ascii (String.sub filename 6 t_length) 
       in 
-        { ticker = t; open_prices = List.rev op; 
-          high_prices = List.rev high; low_prices = List.rev low; 
-          close_prices = List.rev cp; volumes = List.rev vol;
-          start_date = start_date }
+      { ticker = t; open_prices = List.rev op; 
+        high_prices = List.rev high; low_prices = List.rev low; 
+        close_prices = List.rev cp; volumes = List.rev vol;
+        start_date = start_date }
   in
   crawler file [] [] [] [] [] "" 0 
 
