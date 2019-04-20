@@ -21,7 +21,6 @@ let get_ticker stocks ticker =
 (** [get_price] returns the price associated with [ticker] in the list [stocks]
     on the day specified in [state]*)
 let get_price stocks ticker state =
-  print_endline ticker;
   let obj = get_ticker stocks (String.uppercase_ascii ticker) in
   List.assoc state.day obj.close_prices
 
@@ -94,8 +93,17 @@ let rec parse_next state stocks s_stocks path =
       ANSITerminal.(print_string [green] (string_of_state next_state)); 
       parse_next next_state stocks s_stocks path
     | Quit -> ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
-    | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say:
-      \n\tbuy [ticker] [vol]\n\tsell [ticker] [vol]\n\tsma [ticker] [period]\n\tprice [ticker]\n\tview\n\tnext [optional:length]\n\tquit\n\n"); 
+    | Help -> ANSITerminal.(print_string [blue] "\n\tYou can say: \n\t
+      buy [ticker] [vol]\n\t
+      sell [ticker] [vol]\n\t
+      sma [ticker] [period]\n\t
+      price [ticker]\n\t
+      momentum [ticker] [period]\n\t
+      roc [ticker] [period]\n\t
+      skew [ticker]\n\t
+      view\n\t
+      next [optional:length]\n\t
+      quit\n\n"); 
       parse_next state stocks s_stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); 
       parse_next state stocks s_stocks path
