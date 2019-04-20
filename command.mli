@@ -16,6 +16,8 @@ type command =
   | Next of phrase
   | Help 
   | View 
+  | Short of phrase
+  | Close of phrase
   | Price of phrase
 
 (** Raised when an empty command is parsed. *)

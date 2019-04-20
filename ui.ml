@@ -174,7 +174,7 @@ let main () =
     let dates = dates_helper stocks "999999999" in
     let date = check_valid_date dates in
     let separated_stocks = get_valid_stocks stocks date [] [] in 
-    let (start_state:Trade.state) = {balance = 10000.; portfolio = []; 
+    let (start_state:Trade.state) = {balance = 10000.; portfolio = []; short_positions = [];
                                      value = 0.; day = date; dates = dates} in 
     parse_next start_state stocks separated_stocks path 
 

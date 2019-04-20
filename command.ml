@@ -17,6 +17,8 @@ type command =
   | Next of phrase
   | Help 
   | View 
+  | Short of phrase
+  | Cover of phrase
   | Price of phrase
 
 (** Raised when an empty command is parsed. *)
@@ -105,6 +107,12 @@ let parse str valid =
     Analysis (removeFirst finalLst)
   else if (List.nth finalLst 0 = "price" && List.length finalLst = 2) then
     Price (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "short" && List.length finalLst = 3
+          && isValidTrade finalLst valid) then
+    Short (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "cover" && List.length finalLst = 3
+          && isValidTrade finalLst valid) then
+    Cover (removeFirst finalLst)
   else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed
 
