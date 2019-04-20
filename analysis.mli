@@ -10,7 +10,7 @@ val rate_of_change : stock -> int -> float
 
 (** [sma stock n] is the simple moving average between closing price
     [n] day ago and today's closing price of stock [stock]*)
-val sma : stock -> int -> float
+val sma : stock -> int -> string -> float
 
 (** [vol] calculates the standard deviation, or 
     volatility, of the stock over n days *)
