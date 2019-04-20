@@ -6,35 +6,38 @@ run `opam update` and `opam upgraed` first
 
 ### Initializtion
 
-```
-INIT: {
-
-}
-```
-
 Example:
 
 ```
 INIT: {
-
+  balance: 10000.
+  portfolio: JPM 10, AAPL 10
+  date: 20090318
 }
 ```
 
 ### Routine
 
-Each line has to follow this format: `[verb] [ticker] [amt] [frequency] [measure] [> or <] [amt]`
+Each line has to follow this format: `[verb] [ticker] [amt] [frequency] [measure] [> or <] [number]`
 
-`[verb]` is either `buy` or `sell`. Type: string
+`[verb]` is either `buy` or `sell`
 
-`[ticker]` is the ticket of a stock. Type: string
+`[ticker]` is the ticket of a stock
 
-`[amt]` is the amount of share. Type: int
+`[amt]` is the amount of share. If `[verb]` is sell, then you can put `all` to sell all shares of that `[ticker]`
 
-`[frequency]` is either `whenever`, `once`, or `twice`. This is the frequency you want your routine to be executed. Type: string
+`[frequency]` is either `whenever`, `once`, or `twice`. This is the frequency you want your routine to be executed
 
-`[measure]` is any of the measure provided in `analysis.mli`. eg. sma, skew, etc. Type: string
+`[measure]` is any of the measure provided in `analysis.mli`. eg. sma, skew, etc
 
-`[> or <]` is either > or <. Type: string
+`[> or <]` is either > or <
 
-`[amt]` is an integer. Type: int
+`[number]` is a number
 
+Example:
+
+```
+buy aapl 50 once whenever vol > 10.
+sell aapl all once whenever momentum < -10.
+buy jpm 5 whenever sma > 10
+```
