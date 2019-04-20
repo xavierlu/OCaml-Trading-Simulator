@@ -3,6 +3,7 @@ open Scraper
 type state = {
   balance: float;
   portfolio: (string * int) list;
+  short_positions: (string * string * int) list;
   value: float; 
   day: string;
   dates: string list
@@ -23,27 +24,41 @@ let rec index_of state dates =
 let get_ticker stocks ticker = 
   List.find (fun item -> item.ticker = ticker) stocks
 
+let second = function (x,y,z) -> y
+let first = function (x,y,z) -> x
+let third = function (x,y,z) -> z
 (** [update_val] updates the state with the new prices from [new_day] *)
-let rec update_val portfolio new_day stocks =
-  match portfolio with 
-  |[]-> 0.0
-  |h::t -> let ticker_obj = get_ticker stocks (fst h) in
+let rec update_val portfolio short new_day stocks =
+  match (portfolio,short) with 
+  |([],[])-> 0.0
+  |(h1::t1, h2::t2) -> let ticker_obj = get_ticker stocks (fst h1) in
+    let short_obj = get_ticker stocks (first h2) in
+    let short_value = List.assoc (second h2) short_obj.close_prices -. List.assoc new_day short_obj.close_prices in
     let price = List.assoc new_day ticker_obj.close_prices  in
-    price *. (float_of_int (snd h)) +. update_val t new_day stocks
-
+    price *. (float_of_int (snd h1)) +. short_value *. (float_of_int (third h2)) +. update_val t1 t2 new_day stocks
+  |(h::t, _) -> let ticker_obj = get_ticker stocks (fst h) in
+  let price = List.assoc new_day ticker_obj.close_prices  in
+  price *. (float_of_int (snd h)) +. update_val t [] new_day stocks
+  |(_, h::t) ->  
+    let short_obj = get_ticker stocks (first h) in
+    let short_value = List.assoc (second h) short_obj.close_prices -. List.assoc new_day short_obj.close_prices in
+    short_value *. (float_of_int (third h)) +. update_val [] t new_day stocks
+    
 let next state stocks steps =
   try 
     let new_day = List.nth state.dates (index_of state state.dates + steps) in
     ANSITerminal.(print_string [green] ("Date: " ^ new_day ^ "\n")) ;
     {balance = state.balance;
      portfolio = state.portfolio;
-     value = update_val state.portfolio new_day stocks;
+     value = update_val state.portfolio state.short_positions new_day stocks;
+     short_positions = state.short_positions;
      day = new_day;
      dates = state.dates}
   with _ -> raise (EndOfSim 
                      {balance = state.balance;
                       portfolio = state.portfolio;
-                      value = update_val state.portfolio "20130809" stocks;
+                      short_positions = state.short_positions;
+                      value = update_val state.portfolio state.short_positions "20130809" stocks;
                       day = "20130809";
                       dates = state.dates})
 
@@ -59,6 +74,7 @@ let buy (state:state) stocks ticker amt =
             if fst item = ticker 
             then (fst item, snd item + amt) else item) state.portfolio
         else (ticker, amt) :: state.portfolio;
+      short_positions = state.short_positions;
       value = state.value +. (price *. float_of_int amt); 
       day = state.day;
       dates = state.dates;
@@ -77,6 +93,7 @@ let sell state stocks ticker amt =
       portfolio = List.map (fun item -> 
           if fst item = ticker 
           then (fst item, snd item - amt) else item) state.portfolio;
+      short_positions = state.short_positions;
       value = state.value -. (price *. float_of_int amt); 
       day = state.day;
       dates = state.dates;

@@ -7,6 +7,7 @@ open Scraper
 type state = {
   balance: float;
   portfolio: (string * int) list;
+  short_positions: (string * string * int) list;
   value: float; 
   day : string;
   dates: string list;
