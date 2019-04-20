@@ -99,7 +99,12 @@ let rec parse_next state stocks s_stocks path =
       parse_next state stocks s_stocks path
     | View -> ANSITerminal.(print_string [green] (string_of_state state)); 
       parse_next state stocks s_stocks path
-    | Volatility phrase -> failwith "unimplemented"
+    | Volatility phrase -> 
+      ANSITerminal.(print_string [green]  
+                      ("Volatility: " ^ string_of_float 
+                         (vol (get_ticker stocks (String.uppercase_ascii (List.hd phrase)))
+                            (int_of_string (List.nth phrase 1)) state.day) ^ "\n"));
+      parse_next state stocks s_stocks path
     | Price phrase -> ANSITerminal.(print_string [green] ((string_of_float (get_price stocks (List.hd phrase) state)) ^ "\n")); 
       parse_next state stocks s_stocks path
     | Next phrase -> let next_state = next state stocks 
@@ -110,6 +115,23 @@ let rec parse_next state stocks s_stocks path =
       ANSITerminal.(print_string [green] 
                       ("Moving Average: " ^ string_of_float 
                          (sma (get_ticker stocks (String.uppercase_ascii (List.hd phrase)))
+                            (int_of_string (List.nth phrase 1)) state.day) ^ "\n"));
+      parse_next state stocks s_stocks path
+    | Skew phrase -> 
+      ANSITerminal.(print_string [green] ("Skew: " ^ string_of_float 
+                                            (skew (get_ticker stocks (String.uppercase_ascii (List.hd phrase))) 
+                                               state.day)^ "\n"));
+      parse_next state stocks s_stocks path
+    | Momentum phrase -> 
+      ANSITerminal.(print_string [green] 
+                      ("Momentum: " ^ string_of_float 
+                         (momentum (get_ticker stocks (String.uppercase_ascii (List.hd phrase)))
+                            (int_of_string (List.nth phrase 1)) state.day) ^ "\n"));
+      parse_next state stocks s_stocks path
+    | ROC phrase -> 
+      ANSITerminal.(print_string [green] 
+                      ("Rate of change: " ^ string_of_float 
+                         (rate_of_change (get_ticker stocks (String.uppercase_ascii (List.hd phrase)))
                             (int_of_string (List.nth phrase 1)) state.day) ^ "\n"));
       parse_next state stocks s_stocks path
     | _ -> failwith "unimplemented"

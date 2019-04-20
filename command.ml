@@ -11,6 +11,8 @@ type command =
   | Volatility of phrase
   | SMA of phrase 
   | Skew of phrase 
+  | Momentum of phrase
+  | ROC of phrase
   | Analysis of phrase
   | Next of phrase
   | Help 
@@ -73,7 +75,7 @@ let parse str valid =
     Quit
   else if (List.nth finalLst 0 = "view" && List.length finalLst = 1) then
     View
-  else if (List.nth finalLst 0 = "volatility" && List.length finalLst = 2 && 
+  else if (List.nth finalLst 0 = "volatility" && List.length finalLst = 3 && 
            isTicker (List.nth finalLst 1) valid) then
     Volatility (removeFirst finalLst)
   else if ((List.nth finalLst 0 = "next" || List.nth finalLst 0 = "sleep") 
@@ -87,6 +89,14 @@ let parse str valid =
            isTicker (List.nth finalLst 1) valid
            && isNum (List.nth finalLst 2)) then
     SMA (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "momentum" && List.length finalLst = 3 && 
+           isTicker (List.nth finalLst 1) valid
+           && isNum (List.nth finalLst 2)) then
+    Momentum (removeFirst finalLst)
+  else if (List.nth finalLst 0 = "roc" && List.length finalLst = 3 && 
+           isTicker (List.nth finalLst 1) valid
+           && isNum (List.nth finalLst 2)) then
+    ROC (removeFirst finalLst)
   else if (List.nth finalLst 0 = "skew" && List.length finalLst = 2 
            && isTicker (List.nth finalLst 1) valid) then
     Skew (removeFirst finalLst)

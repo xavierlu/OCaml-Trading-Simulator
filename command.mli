@@ -10,10 +10,12 @@ type command =
   | Volatility of phrase
   | SMA of phrase 
   | Skew of phrase 
+  | Momentum of phrase
+  | ROC of phrase
   | Analysis of phrase
   | Next of phrase
-  | Help
-  | View
+  | Help 
+  | View 
   | Price of phrase
 
 (** Raised when an empty command is parsed. *)
