@@ -142,6 +142,16 @@ let rec parse_next state stocks s_stocks path =
                          (rate_of_change (get_ticker stocks (String.uppercase_ascii (List.hd phrase)))
                             (int_of_string (List.nth phrase 1)) state.day) ^ "\n"));
       parse_next state stocks s_stocks path
+    | Short phrase -> 
+      let next_state = short state  (fst s_stocks) 
+                        (String.uppercase_ascii (List.hd phrase))
+                        (int_of_string (List.nth phrase 1)) in 
+           parse_next next_state stocks s_stocks path
+    | Close phrase -> 
+      let next_state = close state  (fst s_stocks) 
+                        (String.uppercase_ascii (List.hd phrase))
+                        (List.nth phrase 1) in 
+           parse_next next_state stocks s_stocks path
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); 

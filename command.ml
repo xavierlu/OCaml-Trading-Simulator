@@ -18,7 +18,7 @@ type command =
   | Help 
   | View 
   | Short of phrase
-  | Cover of phrase
+  | Close of phrase
   | Price of phrase
 
 (** Raised when an empty command is parsed. *)
@@ -110,9 +110,9 @@ let parse str valid =
   else if (List.nth finalLst 0 = "short" && List.length finalLst = 3
           && isValidTrade finalLst valid) then
     Short (removeFirst finalLst)
-  else if (List.nth finalLst 0 = "cover" && List.length finalLst = 3
+  else if (List.nth finalLst 0 = "close" && List.length finalLst = 3
           && isValidTrade finalLst valid) then
-    Cover (removeFirst finalLst)
+    Close (removeFirst finalLst)
   else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed
 

@@ -37,3 +37,9 @@ val buy : state -> stock list -> string -> int -> state
     or if the ticker is invalid*)
 val sell : state -> stock list -> string -> int -> state 
 
+(** TODO DOCUMENT *)
+val short : state -> stock list -> string -> int -> state
+
+(** TODO DOCUMENT *)
+val close : state -> stock list -> string -> string -> state
+
