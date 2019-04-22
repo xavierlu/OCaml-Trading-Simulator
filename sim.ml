@@ -41,14 +41,15 @@ let isCompare str =
 (** [isNum str] checks if [str] is a string representation of a number *)
 let isNum str = 
   let r = Str.regexp"[0-9]+$" in 
-  Str.string_match r str 0
+  let r2 = Str.regexp "[-][0-9]+$" in
+  (Str.string_match r str 0 || Str.string_match r2 str 0)
 
 (** [isMeasure str] checks if [str] is the name of a measure function in
     analysis.ml *)
 let isMeasure str = 
   match str with
   | "momentum" -> true
-  | "rate_of_chang" -> true
+  | "rate_of_change" -> true
   | "sma" -> true
   | "vol" -> true
   | "get_mean" -> true
@@ -58,28 +59,55 @@ let isMeasure str =
 (** [isValidTrade lst valid] checks if the list of strings [lst]
     comprising of a routine for the simulator is in the correct format *)
 let isValid lst valid = 
-  isTicker (String.uppercase_ascii (List.nth lst 1)) valid
-  && List.length lst = 7 
-  && ((isNum (List.nth lst 2)) || (String.equal (List.nth lst 0) "sell")
-                                  && (String.equal (List.nth lst 2) "all"))
-  && (String.equal (List.nth lst 3) "whenever" || 
-      String.equal (List.nth lst 3) "once")
-  && isMeasure (List.nth lst 4)
-  && isCompare (List.nth lst 5)
-  && isNum (List.nth lst 6)
+  List.length lst = 7 
+  && (String.equal (List.nth lst 0) "sell" || 
+      String.equal (List.nth lst 0) "buy")
+  && (isTicker (String.uppercase_ascii (List.nth lst 1)) valid )
+  && (isNum (List.nth lst 2) || ((String.equal (List.nth lst 0) "sell")
+                                 && (String.equal (List.nth lst 2) "all")))
+  &&  (String.equal (List.nth lst 3) "whenever" || 
+       String.equal (List.nth lst 3) "once" ||
+       String.equal (List.nth lst 3) "twice")
+  && (isMeasure (List.nth lst 4))
+  && (isCompare (List.nth lst 5))
+  && (isNum (List.nth lst 6))
 
-
-
-
+let get_rules_list path stocks =  
+  let unfiltered = Scraper.get_rules path in
+  let rec filter lst = 
+    match lst with
+    | [] -> []
+    | h::t ->
+      let list_of_rule = String.split_on_char ' ' h in
+      if (isValid list_of_rule stocks) 
+      then 
+        (print_endline h;
+         h::(filter t))
+      else filter t
+  in filter unfiltered
 
 let main_sim () = 
 
- ANSITerminal.(print_string [red]
-                  "\nWelcome to Snake Sim Auto-Trader.\nPlease enter the name of your trade file\n");
+  ANSITerminal.(print_string [red]
+                  "\nWelcome to Snake Sim Auto-Trader.\nPlease enter the folder of price data to be used\n");
   ANSITerminal.(print_string [] "> ");
-  (*let path = read_line () in *)
-  ANSITerminal.(print_string [blue] "\n\tLoading Simulation...\n\n")
+  let path = read_line () in
+  ANSITerminal.(print_string [blue] "\n\tLoading Stock Data...\n\n");
+  match path with
+  | exception End_of_file -> ()
+  | file_name -> let stocks = (Scraper.get_data path) in
+    ANSITerminal.(print_string [blue] "\tFile Successfully Loaded!\n\n");
+    ANSITerminal.(print_string [red]
+                    "\nPlease enter the name of your trade file.\n");
+    ANSITerminal.(print_string [] "> ");
+    let path2 = read_line () in
+    ANSITerminal.(print_string [blue] "\n\tLoading Simulation...\n\n");
+    match path2 with
+    | exception End_of_file -> ()
+    | file_name -> let rule_list = get_rules_list path2 stocks in ()
+(* unfinished, still need to get the init state and then pass them on to the function that will run the sim with those two *)
 
-  
+
+
 
 let () = main_sim ()

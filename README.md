@@ -38,7 +38,7 @@ Each line has to follow this format: `[verb] [ticker] [amt] [frequency] [measure
 Example:
 
 ```
-buy aapl 50 whenever vol > 10.
-sell aapl all once momentum < -10.
+buy aapl 50 whenever vol > 10
+sell aapl all once momentum < -10
 buy jpm 5 whenever sma > 10
 ```

@@ -1,0 +1,9 @@
+INIT: {
+balance: 10000.
+portfolio: JPM 10, AAPL 10
+date: 20090318
+}
+
+buy aapl 50 whenever vol > 10
+sell aapl all once momentum < -10
+buy jpm 5 whenever sma > 10

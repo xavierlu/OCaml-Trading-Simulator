@@ -40,6 +40,14 @@ let file_crawler file filename =
   in
   crawler file [] [] [] [] [] "" 0 
 
+(** [rules_file_crawler] returns a list of strings obtained by parsing [file]
+    which is intended to be a correctly formatted rules file *)
+let rec rules_file_crawler file lst = 
+  try
+    let next_line = input_line file in
+    rules_file_crawler file (next_line::lst)
+  with _ -> lst
+
 (** [ticker_cmp s1 s2] compares stocks [s1] and [s2] accoriding to the 
     alphabetical order of their tickers *)
 let ticker_cmp (s1:stock) (s2:stock) = 
@@ -60,3 +68,7 @@ let rec directory_crawler dir path lst =
 let get_data (path : string) =
   let dir = opendir path in 
   directory_crawler dir path []
+
+let get_rules (path : string) =
+  let file_name = open_in path in
+  List.rev (rules_file_crawler file_name [])

@@ -17,6 +17,10 @@ type stock = {
     have proper formatting and name formatting*)
 val get_data : string -> stock list
 
+(** [get_rules path] returns a [string list] containing the lines in the file
+    specified by [path] *)
+val get_rules : string -> string list
+
 (** [ticker_cmp s1 s2] compares stocks [s1] and [s2] accoriding to the 
     alphabetical order of their tickers *)
 val ticker_cmp : stock -> stock -> int
