@@ -144,14 +144,14 @@ let rec parse_next state stocks s_stocks path =
       parse_next state stocks s_stocks path
     | Short phrase -> 
       let next_state = short state  (fst s_stocks) 
-                        (String.uppercase_ascii (List.hd phrase))
-                        (int_of_string (List.nth phrase 1)) in 
-           parse_next next_state stocks s_stocks path
+          (String.uppercase_ascii (List.hd phrase))
+          (int_of_string (List.nth phrase 1)) in 
+      parse_next next_state stocks s_stocks path
     | Close phrase -> 
       let next_state = close state  (fst s_stocks) 
-                        (String.uppercase_ascii (List.hd phrase))
-                        (List.nth phrase 1) in 
-           parse_next next_state stocks s_stocks path
+          (String.uppercase_ascii (List.hd phrase))
+          (List.nth phrase 1) in 
+      parse_next next_state stocks s_stocks path
     | _ -> failwith "unimplemented"
   with 
   | Empty -> ANSITerminal.(print_string [green] "empty command\n"); 
@@ -167,6 +167,29 @@ let rec parse_next state stocks s_stocks path =
     ANSITerminal.(print_string [green] ("You started with $10000, 
     now you have:\n" ^ (string_of_state final_state) ^ "\n"));
     ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
+
+let make_state stocks bal portfolio short_pos value day ?dates:(dates = []) =
+  print_endline "in make state";
+  match dates with
+  | [] -> let new_dates = dates_helper stocks "999999999" in
+    print_endline "first case";
+    {
+      balance = bal;
+      portfolio = portfolio;
+      short_positions = short_pos;
+      value = value;
+      day = day;
+      dates = new_dates;
+    }
+  | _::_ -> print_endline "second case"; { 
+      balance = bal;
+      portfolio = portfolio;
+      short_positions = short_pos;
+      value = value;
+      day = day;
+      dates = dates;
+    }
+
 
 (** [main] initializes the game, prompting the user to enter the database file
     they wish to use and creating a valid list of dates and stocks based on 
@@ -184,8 +207,9 @@ let main () =
     let dates = dates_helper stocks "999999999" in
     let date = check_valid_date dates in
     let separated_stocks = get_valid_stocks stocks date [] [] in 
-    let (start_state:Trade.state) = {balance = 10000.; portfolio = []; short_positions = [];
-                                     value = 0.; day = date; dates = dates} in 
+    (*let (start_state:Trade.state) = {balance = 10000.; portfolio = []; short_positions = [];
+                                     value = 0.; day = date; dates = dates} in*)
+    let start_state = make_state stocks 10000.0 [] [] 0.0 date ~dates:dates in                          
     parse_next start_state stocks separated_stocks path 
 
 let () = main ()

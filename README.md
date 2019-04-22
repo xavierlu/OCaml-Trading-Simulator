@@ -11,7 +11,7 @@ Example:
 ```
 INIT: {
   balance: 10000.
-  portfolio: JPM 10, AAPL 10
+  portfolio: JPM 10;AAPL 10
   date: 20090318
   path: dowjones
 }
