@@ -27,7 +27,7 @@ Each line has to follow this format: `[verb] [ticker] [amt] [frequency] [measure
 
 `[amt]` is the amount of share. If `[verb]` is sell, then you can put `all` to sell all shares of that `[ticker]`
 
-`[frequency]` is either `whenever`, `once`, or `twice`. This is the frequency you want your routine to be executed
+`[frequency]` is either `whenever`, `once`. This is the frequency you want your routine to be executed
 
 `[measure]` is any of the measure provided in `analysis.mli`. eg. sma, skew, etc
 

@@ -4,5 +4,7 @@
     the dates field of the returned state will equal [dates], otherwise [dates]
     will be calculated using [stocks]. *)
 val make_state : Scraper.stock list -> float -> (string * int) list -> 
-  (string * string * int) list -> float -> string -> ?dates:string list ->
-  Trade.state
+  (string * string * int) list -> float -> string -> string list -> Trade.state
+
+(** [main] runs the ui for the interactive tool *)
+val main : unit -> unit

@@ -68,8 +68,7 @@ let isValid lst valid =
   && (isNum (List.nth lst 2) || ((String.equal (List.nth lst 0) "sell")
                                  && (String.equal (List.nth lst 2) "all")))
   &&  (String.equal (List.nth lst 3) "whenever" || 
-       String.equal (List.nth lst 3) "once" ||
-       String.equal (List.nth lst 3) "twice")
+       String.equal (List.nth lst 3) "once" )
   && (isMeasure (List.nth lst 4))
   && (isCompare (List.nth lst 5))
   && (isNum (List.nth lst 6))
@@ -124,7 +123,8 @@ let get_init_state path stocks =
   let balance = List.nth (List.nth raw_init 0 |> String.split_on_char ' ') 1 |> float_of_string in
   let portfolio = get_portfolio (List.nth raw_init 1) stocks in
   let start_date = List.nth (List.nth raw_init 2 |> String.split_on_char ' ') 1 in
-  Ui.make_state stocks balance portfolio [] 0.0 start_date (*still need to implement short_pos value calcuation into here but proof of concept *)
+  print_endline "pre make state";
+  Ui.make_state stocks balance portfolio [] 0.0 start_date [] (*still need to implement short_pos value calcuation into here but proof of concept *)
 
 
 (** [get_rules_list path stocks] returns a [rule list] obtained from parsing
@@ -172,7 +172,17 @@ let main_sim () =
       let rule_list = get_rules_list path2 stocks in ()
 (* unfinished, still need to get the init state and then pass them on to the function that will run the sim with those two *)
 
+let rec pre_main () =
+  ANSITerminal.(print_string [] "\n> "); 
+  let response = read_line () in
+  if String.uppercase_ascii response = "SIM" then main_sim ()
+  else if String.uppercase_ascii response = "UI" then Ui.main ()
+  else if response = "quit" then failwith "byeeee"
+  else (ANSITerminal.(print_string [red] "Invalid entry. Type \"ui\" for the interactive tool or type \"sim\" for the simulator."); 
+        pre_main () )
 
 
-
-let () = main_sim ()
+let () = 
+  ANSITerminal.(print_string [red]
+                  "\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
+  pre_main ()

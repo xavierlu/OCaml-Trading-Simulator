@@ -171,7 +171,7 @@ let rec parse_next state stocks s_stocks path =
     now you have:\n" ^ (string_of_state final_state) ^ "\n"));
     ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
 
-let make_state stocks bal portfolio short_pos value day ?dates:(dates = []) =
+let make_state stocks bal portfolio short_pos value day dates =
   print_endline "in make state";
   match dates with
   | [] -> let new_dates = dates_helper stocks "999999999" in
@@ -199,7 +199,7 @@ let make_state stocks bal portfolio short_pos value day ?dates:(dates = []) =
     that file *)
 let main () =
   ANSITerminal.(print_string [red]
-                  "\nWelcome to snake sim.\nPlease enter the folder of price data to be used\n");
+                  "\nWelcome to Snake Sim.\nPlease enter the folder of price data to be used\n");
   ANSITerminal.(print_string [] "> ");
   let path = read_line () in
   ANSITerminal.(print_string [blue] "\n\tLoading Stock Data...\n\n");
@@ -210,9 +210,7 @@ let main () =
     let dates = dates_helper stocks "999999999" in
     let date = check_valid_date dates in
     let separated_stocks = get_valid_stocks stocks date [] [] in 
-    (*let (start_state:Trade.state) = {balance = 10000.; portfolio = []; short_positions = [];
-                                     value = 0.; day = date; dates = dates} in*)
-    let start_state = make_state stocks 10000.0 [] [] 0.0 date ~dates:dates in                          
+    let start_state = make_state stocks 10000.0 [] [] 0.0 date dates in                          
     parse_next start_state stocks separated_stocks path 
 
-let () = main ()
+(*let () = main ()*)
