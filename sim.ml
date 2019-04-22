@@ -55,8 +55,8 @@ let isMeasure str =
   | "skew" -> true
   | _ -> false
 
-(** [isValidTrade lst valid] does some regex to check if the list of strings
-    comprising the command [lst] represents a valid trade *)
+(** [isValidTrade lst valid] checks if the list of strings [lst]
+    comprising of a routine for the simulator is in the correct format *)
 let isValid lst valid = 
   isTicker (String.uppercase_ascii (List.nth lst 1)) valid
   && List.length lst = 7 
