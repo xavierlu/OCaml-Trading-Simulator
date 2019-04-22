@@ -2,7 +2,6 @@
 open Trade
 open Command
 open Scraper
-open Ui
 
 (** [rule] represents a valid trading rule. Everything is straightfoward,
     "all" is represented as [amt] = -1 *)
@@ -55,12 +54,8 @@ let isNum str =
     analysis.ml *)
 let isMeasure str = 
   match str with
-  | "momentum" -> true
-  | "rate_of_change" -> true
-  | "sma" -> true
-  | "vol" -> true
-  | "get_mean" -> true
-  | "skew" -> true
+  | "momentum" | "rate_of_change" | "sma"  | "vol"  | "get_mean" | "skew" 
+    -> true
   | _ -> false
 
 (** [isValidTrade lst valid] checks if the list of strings [lst]

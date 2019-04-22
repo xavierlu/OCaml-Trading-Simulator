@@ -12,7 +12,10 @@ let sos_helper x y =
 let string_of_state state = 
   "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
   List.fold_left sos_helper "" state.portfolio 
-  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ state.day ^ "\n"
+  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ state.day ^ "\n" ^
+  "Short Positions: " ^ 
+  (List.fold_left (fun x (a,b,c) -> 
+       x ^ a ^ " " ^ b ^ " " ^ (string_of_int c) ^ ", ") "" state.short_positions) ^ "\n"
 
 (** [get_ticker] returns a stock associated with [ticker] in [stocks] *)
 let get_ticker stocks ticker = 
