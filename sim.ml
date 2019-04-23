@@ -11,6 +11,7 @@ type rule = {
   amt: int;
   freq: string;
   measure: string; (*measure type? *)
+  argument: int; (* the args that needed to pass into the measure analysis *)
   gtlt: char;
   number: float;
 }
@@ -62,12 +63,12 @@ let isMeasure str =
     -> true
   | _ -> false
 
-let evaluate_measure str (stock : Scraper.stock) state =
+let evaluate_measure str argument (stock : Scraper.stock) state =
   match str with
-  | "momentum" -> Analysis.momentum stock 30 state.day
-  | "rate_of_change" -> Analysis.rate_of_change stock 30 state.day
-  | "sma" -> Analysis.sma stock 30 state.day
-  | "vol" -> Analysis.vol stock 30 state.day
+  | "momentum" -> Analysis.momentum stock argument state.day
+  | "rate_of_change" -> Analysis.rate_of_change stock argument state.day
+  | "sma" -> Analysis.sma stock argument state.day
+  | "vol" -> Analysis.vol stock argument state.day
   (*| "get_mean" -> 
     Analysis.get_mean ((sublist stock.close_prices state.day) 30)*)
   | "skew" -> Analysis.skew stock state.day
@@ -199,8 +200,12 @@ let get_rules_list path stocks =
           amt = amt_helper (List.nth list_of_rule 2);
           freq = List.nth list_of_rule 3;
           measure = List.nth list_of_rule 4;
-          gtlt = String.get (List.nth list_of_rule 5) 0;
-          number = float_of_string (List.nth list_of_rule 6);
+          argument = if List.nth list_of_rule 4 <> "skew"
+            then int_of_string (List.nth list_of_rule 5) else -1;
+          gtlt = 
+            String.get (List.nth list_of_rule (if List.nth list_of_rule 4 <> "skew" then 6 else 5)) 0;
+          number = 
+            float_of_string (List.nth list_of_rule (if List.nth list_of_rule 4 <> "skew" then 7 else 6));
         } in new_rule::(filter t) )
       else filter t
   in filter unfiltered
@@ -241,29 +246,31 @@ let () =
   ANSITerminal.(print_string [red]
                   "\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
   pre_main ()
-  
+
 
 let extract_gtlt rule = 
-match rule.gtlt with 
-|'<' -> (<)
-|'>' -> (>)
-|_ -> failwith "not an equality operator"
+  match rule.gtlt with 
+  |'<' -> (<)
+  |'>' -> (>)
+  |_ -> failwith "not an equality operator"
 
 exception None
 
 (** [execute_rule] evaluates [rule] and returns the corresponding command
     Raises None if no command needs to be executed *)
 let execute_rule state rule dir =
-let comp = extract_gtlt rule in 
-if comp (evaluate_measure rule.measure (Trade.get_ticker dir rule.ticker) state) rule.number then 
-  let phrase = [rule.ticker; string_of_int rule.amt] in 
-   match rule.verb with 
-   | "buy" -> Buy (phrase)
-   | "sell" -> Sell (phrase)
-   | "short" -> Short (phrase)
-   | "close" -> Close (phrase)
-   |_ -> failwith "not a verb or something"
-else raise None
+  let comp = extract_gtlt rule in 
+  if comp (evaluate_measure rule.measure rule.argument (Trade.get_ticker dir rule.ticker) state) rule.number then 
+    let phrase = [rule.ticker; string_of_int rule.amt] in 
+    match rule.verb with 
+    | "buy" -> Buy (phrase)
+    | "sell" -> Sell (phrase)
+    | "short" -> Short (phrase)
+    | "close" -> Close (phrase)
+    |_ -> failwith "not a verb or something"
+  else raise None
+
+
 
 (*
   if (rule.gtlt = '<' 
