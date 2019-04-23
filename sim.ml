@@ -62,15 +62,15 @@ let isMeasure str =
     -> true
   | _ -> false
 
-let evaluate_measure str stock state =
+let evaluate_measure str (stock : Scraper.stock) state =
   match str with
-  | "momentum" -> Analysis.momentum (stock 30 state.day)
-  | "rate_of_change" -> Analysis.rate_of_change (stock 30 state.day)
-  | "sma" -> Analysis.sma (stock 30 state.day)
-  | "vol" -> Analysis.vol (stock 30 state.day)
+  | "momentum" -> Analysis.momentum stock 30 state.day
+  | "rate_of_change" -> Analysis.rate_of_change stock 30 state.day
+  | "sma" -> Analysis.sma stock 30 state.day
+  | "vol" -> Analysis.vol stock 30 state.day
   (*| "get_mean" -> 
     Analysis.get_mean ((sublist stock.close_prices state.day) 30)*)
-  | "skew" -> Analysis.skew (stock state.day)
+  | "skew" -> Analysis.skew stock state.day
   | _ -> raise Empty
 
 (** [isValidTrade lst valid] checks if the list of strings [lst]
@@ -242,7 +242,30 @@ let () =
                   "\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
   pre_main ()
   
+
+let extract_gtlt rule = 
+match rule.gtlt with 
+|'<' -> (<)
+|'>' -> (>)
+|_ -> failwith "not an equality operator"
+
+exception None
+
+(** [execute_rule] evaluates [rule] and returns the corresponding command
+    Raises None if no command needs to be executed *)
 let execute_rule state rule dir =
+let comp = extract_gtlt rule in 
+if comp (evaluate_measure rule.measure (Trade.get_ticker dir rule.ticker) state) rule.number then 
+  let phrase = [rule.ticker; string_of_int rule.amt] in 
+   match rule.verb with 
+   | "buy" -> Buy (phrase)
+   | "sell" -> Sell (phrase)
+   | "short" -> Short (phrase)
+   | "close" -> Close (phrase)
+   |_ -> failwith "not a verb or something"
+else raise None
+
+(*
   if (rule.gtlt = '<' 
       && ((evaluate_measure rule.measure Trade.get_ticker (dir rule.ticker))
           < rule.number))
@@ -253,4 +276,5 @@ let execute_rule state rule dir =
     if rule.verb = "buy" then Buy 
     else if rule.verb = "sell" then Sell
     else if rule.verb = "short" then Short
-    else if
+    else failwith "that's it for verbs"
+*)
