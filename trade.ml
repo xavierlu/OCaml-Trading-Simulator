@@ -106,7 +106,7 @@ let rec short_checker short_positions ticker date =
 let rec remove_short ticker date short_positions = 
   match short_positions with
   |[] -> []
-  |(x,y,z)::t -> if x = ticker && y = date then remove_short ticker date t
+  |(x,y,z)::t -> if x = ticker && y = date then t
     else (x,y,z)::(remove_short ticker date t)
 
 let rec get_short ticker date short_positions = 
