@@ -172,10 +172,8 @@ let rec parse_next state stocks s_stocks path =
     ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
 
 let make_state stocks bal portfolio short_pos value day dates =
-  print_endline "in make state";
   match dates with
   | [] -> let new_dates = dates_helper stocks "999999999" in
-    print_endline "first case";
     {
       balance = bal;
       portfolio = portfolio;
@@ -184,7 +182,7 @@ let make_state stocks bal portfolio short_pos value day dates =
       day = day;
       dates = new_dates;
     }
-  | _::_ -> print_endline "second case"; { 
+  | _::_ -> { 
       balance = bal;
       portfolio = portfolio;
       short_positions = short_pos;

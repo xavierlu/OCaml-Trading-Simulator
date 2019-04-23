@@ -10,10 +10,10 @@ Example:
 
 ```
 INIT: {
-  balance: 10000.
-  portfolio: JPM 10;AAPL 10
-  date: 20090318
-  path: dowjones
+balance: 10000.
+portfolio: JPM 10;AAPL 10
+short_pos: BA 20090313 50;DIS 20090312 15
+date: 20090318
 }
 ```
 
@@ -21,7 +21,7 @@ INIT: {
 
 Each line has to follow this format: `[verb] [ticker] [amt] [frequency] [measure] [> or <] [number]`
 
-`[verb]` is either `buy` or `sell`
+`[verb]` is either `buy`, `sell`, or `short`
 
 `[ticker]` is the ticket of a stock
 

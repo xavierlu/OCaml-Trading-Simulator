@@ -29,9 +29,10 @@ let first = function (x,y,z) -> x
 let third = function (x,y,z) -> z
 
 let rec short_list short_positions = 
-match short_positions with 
-|[] -> []
-|(x,y,z)::t -> (x,y)::(short_list t)
+  match short_positions with 
+  |[] -> []
+  |(x,y,z)::t -> (x,y)::(short_list t)
+
 (** [update_val] updates the state with the new prices from [new_day] *)
 let rec update_val portfolio short new_day stocks =
   match (portfolio,short) with 
@@ -42,8 +43,8 @@ let rec update_val portfolio short new_day stocks =
     let price = List.assoc new_day ticker_obj.close_prices  in
     price *. (float_of_int (snd h1)) +. short_value *. (float_of_int (third h2)) +. update_val t1 t2 new_day stocks
   |(h::t, _) -> let ticker_obj = get_ticker stocks (fst h) in
-  let price = List.assoc new_day ticker_obj.close_prices  in
-  price *. (float_of_int (snd h)) +. update_val t [] new_day stocks
+    let price = List.assoc new_day ticker_obj.close_prices  in
+    price *. (float_of_int (snd h)) +. update_val t [] new_day stocks
   |(_, h::t) ->  
     let short_obj = get_ticker stocks (first h) in
     let short_value = List.assoc (second h) short_obj.close_prices -. List.assoc new_day short_obj.close_prices in
@@ -88,38 +89,38 @@ let buy (state:state) stocks ticker amt =
     raise Broke
 
 let short (state:state) stocks ticker amt = 
-    {
-      balance = state.balance;
-      portfolio = state.portfolio;
-      short_positions = (ticker, state.day, amt) :: state.short_positions;
-      value = state.value; 
-      day = state.day;
-      dates = state.dates;
-    }
+  {
+    balance = state.balance;
+    portfolio = state.portfolio;
+    short_positions = (ticker, state.day, amt) :: state.short_positions;
+    value = state.value; 
+    day = state.day;
+    dates = state.dates;
+  }
 
 let rec short_checker short_positions ticker date = 
-match short_positions with 
-|[] -> false
-|(x,y,z)::t -> if x = ticker && y = date then true else short_checker t ticker date
+  match short_positions with 
+  |[] -> false
+  |(x,y,z)::t -> if x = ticker && y = date then true else short_checker t ticker date
 
 let rec remove_short ticker date short_positions = 
-match short_positions with
-|[] -> []
-|(x,y,z)::t -> if x = ticker && y = date then remove_short ticker date t
-              else (x,y,z)::(remove_short ticker date t)
+  match short_positions with
+  |[] -> []
+  |(x,y,z)::t -> if x = ticker && y = date then remove_short ticker date t
+    else (x,y,z)::(remove_short ticker date t)
 
 let rec get_short ticker date short_positions = 
-match short_positions with 
-|[] -> failwith "short position does not exist"
-|(x,y,z)::t -> if x = ticker && y = date then (x,y,z) else get_short ticker date t
+  match short_positions with 
+  |[] -> failwith "short position does not exist"
+  |(x,y,z)::t -> if x = ticker && y = date then (x,y,z) else get_short ticker date t
 
 let close state stocks ticker date = 
   let ticker_obj = get_ticker stocks ticker in
   let price = List.assoc state.day ticker_obj.close_prices in
   if short_checker state.short_positions ticker date then
-  let short_obj = get_ticker stocks ticker in 
-  let amt = float_of_int (third (get_short ticker date state.short_positions) ) in 
-  let profit = (List.assoc date short_obj.close_prices -. price) *. amt in 
+    let short_obj = get_ticker stocks ticker in 
+    let amt = float_of_int (third (get_short ticker date state.short_positions) ) in 
+    let profit = (List.assoc date short_obj.close_prices -. price) *. amt in 
     {
       balance = state.balance +. profit;
       portfolio = state.portfolio;

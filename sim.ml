@@ -29,6 +29,10 @@ let removeFirst list=
   | [] -> []
   | h::t -> t
 
+(** [get_ticker] returns a stock associated with [ticker] in [stocks] *)
+let get_ticker (stocks:Scraper.stock list) ticker = 
+  List.find (fun (item:stock) -> item.ticker = ticker) stocks
+
 (** [getTickers stocks] takes a list of stocks and returns a list of their
     corresponding tickers *)
 let getTickers stocks = 
@@ -82,6 +86,22 @@ let amt_helper s =
   then int_of_string s 
   else failwith "negative shares"
 
+(** [date_list stock] creates a list of every day [stock] has traded *)
+let date_list stock = 
+  let lst = stock.close_prices in
+  let rec helper lst =
+    match lst with
+    | [] -> []
+    | (x, y)::t -> x::(helper t)
+  in helper lst
+
+(** [date_helper d sd ticker] checks if [d] is between the start date of [stock]
+    and [sd], which is the start date of the simulation *)
+let date_helper d sd (stock:Scraper.stock) =
+  let stock_sd = stock.start_date |> int_of_string in
+  if (int_of_string d <= int_of_string sd && int_of_string d >= stock_sd )
+  then List.mem d (date_list stock) else false
+
 (** [get_stock_list s] takes a string [s] of the format "ticker num;ticker num" 
     and creates a list of [string * int] tuples representing those stocks *)
 let get_stock_list s stocks =
@@ -90,7 +110,6 @@ let get_stock_list s stocks =
     match lst with
     | [] -> []
     | h::t ->
-      print_endline h;
       let list_of_holding = String.split_on_char ' ' h in
       let ticker = List.nth list_of_holding 0 in
       if isTicker ticker stocks = false then failwith "invalid ticker" else
@@ -99,12 +118,37 @@ let get_stock_list s stocks =
   in helper raw_list
 
 (** [get_portfolio s] takes a string s representing stock holdings separated
-    by commas and turns them into a list of [string * int] pairs if they are
+    by semicolons and turns them into a list of [string * int] pairs if they are
     all valid tickers in [stocks]*)
-let rec get_portfolio s stocks = 
+let get_portfolio s stocks = 
   let start = (String.index s ' ') + 1 in
   let len = String.length s - start in
   get_stock_list (String.sub s start len) stocks
+
+let get_short_list s stocks sd = 
+  let raw_list = String.split_on_char ';' s in
+  let rec helper lst =
+    match lst with
+    | [] -> []
+    | h::t -> 
+      let list_of_short = String.split_on_char ' ' h in
+      let ticker = List.nth list_of_short 0 in
+      if isTicker ticker stocks = false then failwith "invalid ticker" else
+        let stock = get_ticker stocks ticker in
+        let date = List.nth list_of_short 1 in
+        if date_helper date sd stock = false then failwith "invalid date" else
+          let amt = List.nth list_of_short 2 |> amt_helper in
+          (ticker, date, amt)::helper t
+  in helper raw_list
+
+
+(** [get_short_post s] takes a string s representing short positions separated
+    by semicolons and turns them into a list of [string * strint * int] pairs 
+    if they are all valid tickers in [stocks]*)
+let get_short_pos s stocks sd =
+  let start = (String.index s ' ') + 1 in
+  let len = String.length s - start in
+  get_short_list (String.sub s start len) stocks sd
 
 (** [get_init_state path stocks] returns an initial state for the simulation
     obtained by parsing the file specified by [path]*)
@@ -117,14 +161,14 @@ let get_init_state path stocks =
       if h = "INIT: {" then filter t true else
       if h = "}" then [] else
       if in_init then
-        (print_endline h;
-         h::(filter t true) )else filter t false
+        h::(filter t true) else filter t false
   in let raw_init = filter unfiltered false in
   let balance = List.nth (List.nth raw_init 0 |> String.split_on_char ' ') 1 |> float_of_string in
+  let start_date = List.nth (List.nth raw_init 3 |> String.split_on_char ' ') 1 in
   let portfolio = get_portfolio (List.nth raw_init 1) stocks in
-  let start_date = List.nth (List.nth raw_init 2 |> String.split_on_char ' ') 1 in
-  print_endline "pre make state";
-  Ui.make_state stocks balance portfolio [] 0.0 start_date [] (*still need to implement short_pos value calcuation into here but proof of concept *)
+  let short_pos = get_short_pos (List.nth raw_init 2) stocks start_date in
+  let value = Trade.update_val portfolio short_pos start_date stocks in
+  Ui.make_state stocks balance portfolio short_pos value start_date [] (*still need to implement short_pos value calcuation into here but proof of concept *)
 
 
 (** [get_rules_list path stocks] returns a [rule list] obtained from parsing

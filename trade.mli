@@ -43,3 +43,5 @@ val short : state -> stock list -> string -> int -> state
 (** TODO DOCUMENT *)
 val close : state -> stock list -> string -> string -> state
 
+val update_val : (string * int) list -> (string * string * int) list ->
+  string -> Scraper.stock list -> float
