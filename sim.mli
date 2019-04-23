@@ -10,8 +10,9 @@ type rule = {
   amt: int;
   freq: string;
   measure: string; (*measure type? *)
+  argument: int; (* the args that needed to pass into the measure analysis *)
   gtlt: char;
   number: float;
 }
 
-val evaluate_measure : string -> Scraper.stock -> Trade.state -> float
+val evaluate_measure : string -> int -> Scraper.stock -> Trade.state -> float
