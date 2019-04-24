@@ -81,7 +81,9 @@ let evaluate_measure str argument (stock : Scraper.stock) state =
 let isValid lst valid = 
   (List.length lst = 7 || List.length lst = 8)
   && (String.equal (List.nth lst 0) "sell" || 
-      String.equal (List.nth lst 0) "buy")
+      String.equal (List.nth lst 0) "buy" 
+      || String.equal (List.nth lst 0) "short"
+      || String.equal (List.nth lst 0) "close")
   && (isTicker (String.uppercase_ascii (List.nth lst 1)) valid )
   && (isNum (List.nth lst 2) || ((String.equal (List.nth lst 0) "sell")
                                  && (String.equal (List.nth lst 2) "all")))
@@ -151,7 +153,7 @@ let get_short_list s stocks sd =
       if isTicker ticker stocks = false then failwith "invalid ticker" else
         let stock = get_ticker stocks ticker in
         let date = List.nth list_of_short 1 in
-        if date_helper date sd stock = false then failwith "invalid date" else
+        if date_helper date sd stock = false then failwith ("invalid date" ^ " " ^ date) else
           let amt = List.nth list_of_short 2 |> amt_helper in
           (ticker, date, amt)::helper t
   in helper raw_list
@@ -230,7 +232,7 @@ let execute_rule state rule dir =
     | "buy" -> Buy (phrase)
     | "sell" -> Sell (phrase)
     | "short" -> Short (phrase)
-    | "close" -> Close (phrase)
+    | "close" -> Close ([rule.ticker; "-1"])
     |_ -> failwith "not a verb or something"
   else None
 
@@ -341,7 +343,6 @@ let main_sim () =
     | exception End_of_file -> ()
     | file_name -> let init_state = get_init_state path2 stocks in 
       rule_list := get_rules_list path2 stocks; 
-      ANSITerminal.(print_string [green] (string_of_int (List.length !rule_list))) ;
       step init_state stocks
 (* unfinished, still need to get the init state and then pass them on to the function that will run the sim with those two *)
 

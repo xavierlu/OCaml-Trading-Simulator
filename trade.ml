@@ -113,10 +113,10 @@ let rec get_short ticker date short_positions =
   |[] -> failwith "short position does not exist"
   |(x,y,z)::t -> if x = ticker && y = date then (x,y,z) else get_short ticker date t
 
-let close state stocks ticker date = 
+let rec close state stocks ticker date = 
   let ticker_obj = get_ticker stocks ticker in
   let price = List.assoc state.day ticker_obj.close_prices in
-  if short_checker state.short_positions ticker date then
+  if short_checker state.short_positions ticker date  && date <> "-1" then
     let short_obj = get_ticker stocks ticker in 
     let amt = float_of_int (third (get_short ticker date state.short_positions) ) in 
     let profit = (List.assoc date short_obj.close_prices -. price) *. amt in 
@@ -128,15 +128,27 @@ let close state stocks ticker date =
       day = state.day;
       dates = state.dates;
     }
+  else if List.mem_assoc ticker (short_list state.short_positions) && date = "-1" then 
+    let short_obj = get_ticker stocks ticker in 
+    let amt = float_of_int (third (get_short ticker date state.short_positions) ) in 
+    let profit = (List.assoc date short_obj.close_prices -. price) *. amt in 
+    let iter_state = {
+      balance = state.balance +. profit;
+      portfolio = state.portfolio;
+      short_positions = remove_short ticker date state.short_positions;
+      value = state.value -. profit; 
+      day = state.day;
+      dates = state.dates;
+    } in close iter_state stocks ticker date 
   else 
-    raise Broke
+    state
 
 
 let sell state stocks ticker amt = 
   let ticker_obj = get_ticker stocks ticker in
   let price = List.assoc state.day ticker_obj.close_prices  in
   if List.mem_assoc ticker state.portfolio 
-  && List.assoc ticker state.portfolio >= amt then
+  && (List.assoc ticker state.portfolio >= amt) && amt > 0 then
     {
       balance = state.balance +. (price *. float_of_int amt);
       portfolio = List.map (fun item -> 
@@ -144,6 +156,16 @@ let sell state stocks ticker amt =
           then (fst item, snd item - amt) else item) state.portfolio;
       short_positions = state.short_positions;
       value = state.value -. (price *. float_of_int amt); 
+      day = state.day;
+      dates = state.dates;
+    }
+  else if List.mem_assoc ticker state.portfolio && amt = -1 then 
+  let quantity = List.assoc ticker state.portfolio in
+  {
+      balance = state.balance +. (price *. float_of_int quantity);
+      portfolio = List.remove_assoc ticker state.portfolio;
+      short_positions = state.short_positions;
+      value = state.value -. (price *. float_of_int quantity); 
       day = state.day;
       dates = state.dates;
     }
