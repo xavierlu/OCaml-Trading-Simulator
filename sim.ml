@@ -357,7 +357,13 @@ let rec pre_main () =
 
 
 let () = 
+  let intro_pic = Scraper.get_rules "jane.txt" in
+  let rec print lst = 
+    match lst with
+    | [] -> ()
+    | h::t  -> ANSITerminal.(print_string [] (h^"\n")); print t
+  in print intro_pic;
   ANSITerminal.(print_string [red]
-                  "\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
+                  "\n\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
   pre_main ()
 
