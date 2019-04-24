@@ -265,16 +265,25 @@ let rec execute_trades state rule_lst valid stocks =
     | Sell phrase -> let next_state = sell state stocks
                          (String.uppercase_ascii (List.hd phrase))
                          (int_of_string (List.nth phrase 1)) in 
+      if rule.verb = "sell" && rule.freq = "once" 
+      then 
+        rule_list := List.filter (fun r -> r <> rule) !rule_list;
       execute_trades next_state t valid stocks
     | Short phrase -> 
       let next_state = short state  stocks
           (String.uppercase_ascii (List.hd phrase))
           (int_of_string (List.nth phrase 1)) in 
+      if rule.verb = "short" && rule.freq = "once" 
+      then 
+        rule_list := List.filter (fun r -> r <> rule) !rule_list;
       execute_trades next_state t valid stocks
     | Close phrase -> 
       let next_state = close state  stocks
           (String.uppercase_ascii (List.hd phrase))
           (List.nth phrase 1) in 
+      if rule.verb = "close" && rule.freq = "once" 
+      then 
+        rule_list := List.filter (fun r -> r <> rule) !rule_list;
       execute_trades next_state t valid stocks
     | None -> execute_trades state rule_lst valid stocks 
 
