@@ -113,6 +113,11 @@ let rec get_short ticker date short_positions =
   |[] -> failwith "short position does not exist"
   |(x,y,z)::t -> if x = ticker && y = date then (x,y,z) else get_short ticker date t
 
+let rec extract_tick_num ticker shortpositions = 
+match shortpositions with
+|[] -> failwith "position does not exist"
+|(x,y,z)::t -> if x = ticker then (x,y,z) else extract_tick_num ticker t
+
 let rec close state stocks ticker date = 
   let ticker_obj = get_ticker stocks ticker in
   let price = List.assoc state.day ticker_obj.close_prices in
@@ -130,12 +135,13 @@ let rec close state stocks ticker date =
     }
   else if List.mem_assoc ticker (short_list state.short_positions) && date = "-1" then 
     let short_obj = get_ticker stocks ticker in 
-    let amt = float_of_int (third (get_short ticker date state.short_positions) ) in 
-    let profit = (List.assoc date short_obj.close_prices -. price) *. amt in 
+    let short_boi = extract_tick_num ticker state.short_positions in
+    let amt = float_of_int (third (short_boi) ) in 
+    let profit = (List.assoc (second short_boi) short_obj.close_prices -. price) *. amt in 
     let iter_state = {
       balance = state.balance +. profit;
       portfolio = state.portfolio;
-      short_positions = remove_short ticker date state.short_positions;
+      short_positions = remove_short ticker (second short_boi) state.short_positions;
       value = state.value -. profit; 
       day = state.day;
       dates = state.dates;

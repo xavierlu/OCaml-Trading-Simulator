@@ -85,8 +85,9 @@ let isValid lst valid =
       || String.equal (List.nth lst 0) "short"
       || String.equal (List.nth lst 0) "close")
   && (isTicker (String.uppercase_ascii (List.nth lst 1)) valid )
-  && (isNum (List.nth lst 2) || ((String.equal (List.nth lst 0) "sell")
-                                 && (String.equal (List.nth lst 2) "all")))
+  && (isNum (List.nth lst 2) || (((String.equal (List.nth lst 0) "sell") 
+  || (String.equal (List.nth lst 0) "close"))
+      && (String.equal (List.nth lst 2) "all")))
   &&  (String.equal (List.nth lst 3) "whenever" || 
        String.equal (List.nth lst 3) "once" )
   && (isMeasure (List.nth lst 4))

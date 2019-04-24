@@ -1,12 +1,12 @@
 INIT: {
 balance: 10000.
-portfolio: AAPL 10
-short_pos:
+portfolio: 
+short_pos: AAPL 20130801 100
 date: 20130801
 }
 
-short aapl once sma 5 < 10000
-close aapl all once sma 5 < 10000
-# buy ba 4 once sma 5 < 10000
+# short aapl 10 once sma 5 > 150
+close aapl all whenever sma 5 < 100000
+buy ba 4 once sma 5 < 10000
 # buy jpm 1 whenever sma 5 < 10000
 # sell aapl all whenever sma 5 < 100000
