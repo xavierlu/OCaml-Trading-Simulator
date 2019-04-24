@@ -1,0 +1,10 @@
+INIT: {
+balance: 10000.
+portfolio: BA 10;AAPL 100
+short_pos: BA 20090313 50
+date: 20090318
+}
+
+buy aapl 4 once sma 5 < 10000
+buy ba 4 once sma 5 < 10000
+buy jpm 1 whenever sma 5 < 10000

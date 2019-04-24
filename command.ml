@@ -20,6 +20,7 @@ type command =
   | Short of phrase
   | Close of phrase
   | Price of phrase
+  | None
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -108,10 +109,10 @@ let parse str valid =
   else if (List.nth finalLst 0 = "price" && List.length finalLst = 2) then
     Price (removeFirst finalLst)
   else if (List.nth finalLst 0 = "short" && List.length finalLst = 3
-          && isValidTrade finalLst valid) then
+           && isValidTrade finalLst valid) then
     Short (removeFirst finalLst)
   else if (List.nth finalLst 0 = "close" && List.length finalLst = 3
-          && isValidTrade finalLst valid) then
+           && isValidTrade finalLst valid) then
     Close (removeFirst finalLst)
   else if (List.nth finalLst 0 = "help") then Help 
   else raise Malformed

@@ -120,6 +120,7 @@ let rec parse_next state stocks s_stocks path =
       parse_next state stocks s_stocks path
     | Next phrase -> let next_state = next state stocks 
                          (int_of_string (List.hd phrase)) in 
+      ANSITerminal.(print_string [green] ("Date: " ^ (next_state.day) ^ "\n")) ;
       parse_next (next_state) stocks 
         (get_valid_stocks stocks next_state.day [] []) path 
     | SMA phrase -> 

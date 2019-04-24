@@ -19,6 +19,7 @@ type command =
   | Short of phrase
   | Close of phrase
   | Price of phrase
+  | None
 
 (** Raised when an empty command is parsed. *)
 exception Empty

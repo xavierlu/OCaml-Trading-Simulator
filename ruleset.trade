@@ -1,10 +1,9 @@
 INIT: {
 balance: 10000.
-portfolio: JPM 10;AAPL 10
-short_pos: BA 20090313 50;DIS 20090312 15
+portfolio: BA 10;AAPL 10
+short_pos: BA 20090313 50;BA 20090312 15
 date: 20090318
 }
 
-buy aapl 50 whenever vol 10 > 10
-sell aapl all once momentum 10 < -10
-buy jpm 5 whenever sma 10 > 10
+buy aapl 1 whenever sma 5 < 10000
+sell aapl all once sma 5 > 110

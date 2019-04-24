@@ -53,7 +53,6 @@ let rec update_val portfolio short new_day stocks =
 let next state stocks steps =
   try 
     let new_day = List.nth state.dates (index_of state state.dates + steps) in
-    ANSITerminal.(print_string [green] ("Date: " ^ new_day ^ "\n")) ;
     {balance = state.balance;
      portfolio = state.portfolio;
      value = update_val state.portfolio state.short_positions new_day stocks;
@@ -86,7 +85,7 @@ let buy (state:state) stocks ticker amt =
       dates = state.dates;
     }
   else 
-    raise Broke
+    state
 
 let short (state:state) stocks ticker amt = 
   {
@@ -149,6 +148,6 @@ let sell state stocks ticker amt =
       dates = state.dates;
     }
   else 
-    raise Broke
+    state
 
 

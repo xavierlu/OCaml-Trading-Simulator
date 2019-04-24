@@ -16,6 +16,8 @@ type rule = {
   number: float;
 }
 
+let rule_list = ref []
+
 (** [removeEmpty list] takes in a string list and returns a new list containing
     the same elements with the empty string elements removed. *)
 let rec removeEmpty list=
@@ -77,7 +79,7 @@ let evaluate_measure str argument (stock : Scraper.stock) state =
 (** [isValidTrade lst valid] checks if the list of strings [lst]
     comprising of a routine for the simulator is in the correct format *)
 let isValid lst valid = 
-  List.length lst = 7 
+  (List.length lst = 7 || List.length lst = 8)
   && (String.equal (List.nth lst 0) "sell" || 
       String.equal (List.nth lst 0) "buy")
   && (isTicker (String.uppercase_ascii (List.nth lst 1)) valid )
@@ -86,8 +88,8 @@ let isValid lst valid =
   &&  (String.equal (List.nth lst 3) "whenever" || 
        String.equal (List.nth lst 3) "once" )
   && (isMeasure (List.nth lst 4))
-  && (isCompare (List.nth lst 5))
-  && (isNum (List.nth lst 6))
+  && (isCompare (List.nth lst 5) || isCompare (List.nth lst 6))
+  && (isNum (List.nth lst 6) || isNum (List.nth lst 7))
 
 (** [amt_helper s] returns -1 iff s = "all", otherwise returning [s] as an
     int. If [s] is a negative number then failwith "negative shares" *)
@@ -210,6 +212,104 @@ let get_rules_list path stocks =
       else filter t
   in filter unfiltered
 
+let extract_gtlt rule = 
+  match rule.gtlt with 
+  |'<' -> (<)
+  |'>' -> (>)
+  |_ -> failwith "not an equality operator"
+
+(** [execute_rule] evaluates [rule] and returns the corresponding command
+    Raises None if no command needs to be executed *)
+let execute_rule state rule dir =
+  let comp = extract_gtlt rule in 
+  if comp (evaluate_measure rule.measure rule.argument (Trade.get_ticker dir (String.uppercase_ascii rule.ticker)) state) rule.number then 
+    let phrase = [rule.ticker; string_of_int rule.amt] in 
+    match rule.verb with 
+    | "buy" -> Buy (phrase)
+    | "sell" -> Sell (phrase)
+    | "short" -> Short (phrase)
+    | "close" -> Close (phrase)
+    |_ -> failwith "not a verb or something"
+  else None
+
+
+(** [date_cmp d1 d2] compares two string representations of dates, returning 1
+    if d1 is after d2, -1 if d1 is before d2, and 0 if they are the same*)
+let date_cmp d1 d2 =
+  if int_of_string d1 > int_of_string d2 then 1 else 
+  if int_of_string d1 = int_of_string d2 then 0 else -1
+
+(** [get_valid_stocks] returns a tuple where the first element is the subset of
+    [stocks] that traded on [date] and the second element is the subset of
+    [stocks] that did not trade on [date]*)
+let rec get_valid_stocks stocks date valid inv =
+  match stocks with
+  | [] -> (valid, inv)
+  | h::t -> if (date_cmp h.start_date date) <= 0 
+    then get_valid_stocks t date (h::valid) inv
+    else get_valid_stocks t date valid (h::inv)
+
+let rec execute_trades state rule_lst valid stocks = 
+  match rule_lst with 
+  |[] -> state
+  |rule::t -> 
+    match execute_rule state rule (fst valid) with
+    | Buy phrase -> 
+      let next_state = buy state stocks
+          (String.uppercase_ascii (List.hd phrase))
+          (int_of_string (List.nth phrase 1)) in 
+      if rule.verb = "buy" && rule.freq = "once" 
+      then 
+        rule_list := List.filter (fun r -> r <> rule) !rule_list;
+      execute_trades next_state t valid stocks
+    | Sell phrase -> let next_state = sell state stocks
+                         (String.uppercase_ascii (List.hd phrase))
+                         (int_of_string (List.nth phrase 1)) in 
+      execute_trades next_state t valid stocks
+    | Short phrase -> 
+      let next_state = short state  stocks
+          (String.uppercase_ascii (List.hd phrase))
+          (int_of_string (List.nth phrase 1)) in 
+      execute_trades next_state t valid stocks
+    | Close phrase -> 
+      let next_state = close state  stocks
+          (String.uppercase_ascii (List.hd phrase))
+          (List.nth phrase 1) in 
+      execute_trades next_state t valid stocks
+    | None -> execute_trades state rule_lst valid stocks 
+
+    | _ -> failwith "unimplemented"
+
+
+(** [sos_helper x y] concatenates a list of stocks for the portfolio, omitting
+    the stock's quantity is 0*)
+let sos_helper x y =
+  if snd y <> 0 then x ^ fst y ^ ": " ^ string_of_int (snd y) ^ "  " else x ^ ""
+
+(** [string_of_state state] converts a state into a printable string*)
+let string_of_state state = 
+  "Balance: $" ^ string_of_float state.balance ^ "\nPortfolio: " ^ 
+  List.fold_left sos_helper "" state.portfolio 
+  ^ "\nValue: $" ^ string_of_float state.value ^ "\nDays: " ^ state.day ^ "\n" ^
+  "Short Positions: " ^ 
+  (List.fold_left (fun x (a,b,c) -> 
+       x ^ a ^ " " ^ b ^ " " ^ (string_of_int c) ^ ", ") "" state.short_positions) ^ "\n"
+
+let rec step state stocks =
+  let validated_stocks = get_valid_stocks stocks state.day [] [] in
+  try 
+    let new_state = execute_trades state !rule_list validated_stocks stocks in
+    let new_day = next new_state stocks 1 in
+    step new_day stocks 
+  with 
+  | EndOfSim final_state -> 
+    ANSITerminal.(print_string [green] "End of simulation.\n");
+    ANSITerminal.(print_string [green] ("You started with $10000, 
+    now you have:\n" ^ (string_of_state final_state) ^ "\n"));
+    ANSITerminal.(print_string [blue] "\n\tGoodbye\n\n")
+
+
+
 let main_sim () = 
 
   ANSITerminal.(print_string [red]
@@ -229,7 +329,9 @@ let main_sim () =
     match path2 with
     | exception End_of_file -> ()
     | file_name -> let init_state = get_init_state path2 stocks in 
-      let rule_list = get_rules_list path2 stocks in ()
+      rule_list := get_rules_list path2 stocks; 
+      ANSITerminal.(print_string [green] (string_of_int (List.length !rule_list))) ;
+      step init_state stocks
 (* unfinished, still need to get the init state and then pass them on to the function that will run the sim with those two *)
 
 let rec pre_main () =
@@ -247,41 +349,3 @@ let () =
                   "\nWelcome to Snake Sim. Type \"ui\" for the interactive tool or type \"sim\" for the simulator.");
   pre_main ()
 
-
-let extract_gtlt rule = 
-  match rule.gtlt with 
-  |'<' -> (<)
-  |'>' -> (>)
-  |_ -> failwith "not an equality operator"
-
-exception None
-
-(** [execute_rule] evaluates [rule] and returns the corresponding command
-    Raises None if no command needs to be executed *)
-let execute_rule state rule dir =
-  let comp = extract_gtlt rule in 
-  if comp (evaluate_measure rule.measure rule.argument (Trade.get_ticker dir rule.ticker) state) rule.number then 
-    let phrase = [rule.ticker; string_of_int rule.amt] in 
-    match rule.verb with 
-    | "buy" -> Buy (phrase)
-    | "sell" -> Sell (phrase)
-    | "short" -> Short (phrase)
-    | "close" -> Close (phrase)
-    |_ -> failwith "not a verb or something"
-  else raise None
-
-
-
-(*
-  if (rule.gtlt = '<' 
-      && ((evaluate_measure rule.measure Trade.get_ticker (dir rule.ticker))
-          < rule.number))
-  || (rule.gtlt = '>' 
-      && ((evaluate_measure rule.measure Trade.get_ticker (dir rule.ticker))
-          > rule.number))
-  then 
-    if rule.verb = "buy" then Buy 
-    else if rule.verb = "sell" then Sell
-    else if rule.verb = "short" then Short
-    else failwith "that's it for verbs"
-*)
