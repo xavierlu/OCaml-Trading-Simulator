@@ -1,9 +1,8 @@
 INIT: {
 balance: 10000.
-portfolio: BA 10;AAPL 10
-short_pos: BA 20090313 50;BA 20090312 15
+portfolio:      
+short_pos:          
 date: 20090318
 }
 
 buy aapl 1 whenever sma 5 < 10000
-sell aapl all once sma 5 > 110

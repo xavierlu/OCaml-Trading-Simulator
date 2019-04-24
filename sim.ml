@@ -135,9 +135,10 @@ let get_stock_list s stocks =
     by semicolons and turns them into a list of [string * int] pairs if they are
     all valid tickers in [stocks]*)
 let get_portfolio s stocks = 
-  let start = (String.index s ' ') + 1 in
-  let len = String.length s - start in
-  get_stock_list (String.sub s start len) stocks
+  if String.get s ((String.length s) - 1 ) = ':' then [] else 
+    let start = (String.index s ' ') + 1 in
+    let len = String.length s - start in
+    get_stock_list (String.sub s start len) stocks
 
 let get_short_list s stocks sd = 
   let raw_list = String.split_on_char ';' s in
@@ -160,9 +161,10 @@ let get_short_list s stocks sd =
     by semicolons and turns them into a list of [string * strint * int] pairs 
     if they are all valid tickers in [stocks]*)
 let get_short_pos s stocks sd =
-  let start = (String.index s ' ') + 1 in
-  let len = String.length s - start in
-  get_short_list (String.sub s start len) stocks sd
+  if String.get s ((String.length s) - 1 ) = ':' then [] else 
+    let start = (String.index s ' ') + 1 in
+    let len = String.length s - start in
+    get_short_list (String.sub s start len) stocks sd
 
 (** [get_init_state path stocks] returns an initial state for the simulation
     obtained by parsing the file specified by [path]*)
@@ -179,8 +181,8 @@ let get_init_state path stocks =
   in let raw_init = filter unfiltered false in
   let balance = List.nth (List.nth raw_init 0 |> String.split_on_char ' ') 1 |> float_of_string in
   let start_date = List.nth (List.nth raw_init 3 |> String.split_on_char ' ') 1 in
-  let portfolio = get_portfolio (List.nth raw_init 1) stocks in
-  let short_pos = get_short_pos (List.nth raw_init 2) stocks start_date in
+  let portfolio = get_portfolio (String.trim (List.nth raw_init 1)) stocks in
+  let short_pos = get_short_pos (String.trim (List.nth raw_init 2)) stocks start_date in
   let value = Trade.update_val portfolio short_pos start_date stocks in
   Ui.make_state stocks balance portfolio short_pos value start_date [] (*still need to implement short_pos value calcuation into here but proof of concept *)
 
