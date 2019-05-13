@@ -1,6 +1,8 @@
-# A6
+# OCaml Trading Simulator
 
-run `opam update` and `opam upgraed` first
+A simulated trading environment that allows users to test their trading strategies on historical stock data.
+
+run `opam update` and `opam upgraed` first, then run `make sim`
 
 ## .trade File Format
 
